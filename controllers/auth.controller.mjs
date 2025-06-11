@@ -84,11 +84,6 @@ export const refreshToken = async (req, res, next) => {
     //new refresh token creation
     const newRefreshToken = authService.createRefreshToken(user);
     sendTokenResponse(user, newAccessToken, newRefreshToken, 200, res);
-
-    res.status(200).json({
-      status: "success",
-      accessToken: newAccessToken,
-    });
   } catch (error) {
     next(error);
   }
@@ -102,14 +97,15 @@ export const logout = async (req, res, next) => {
     // For this example, we clear the cookie.
 
     // Optional: Invalidate the refresh token on the server if stored
-    // const incomingRefreshToken = req.cookies.refreshToken;
-    // if (incomingRefreshToken && req.user) { // Assuming authenticate middleware runs before and attaches req.user
-    //   const user = await User.findById(req.user.id);
-    //   if (user && user.refreshToken === incomingRefreshToken) {
-    //     user.refreshToken = undefined;
-    //     await user.save({ validateBeforeSave: false });
-    //   }
-    // }
+    const incomingRefreshToken = req.cookies.refreshToken;
+    if (incomingRefreshToken && req.user) {
+      // Assuming authenticate middleware runs before and attaches req.user
+      const user = await User.findById(req.user.id);
+      if (user && user.refreshToken === incomingRefreshToken) {
+        user.refreshToken = undefined;
+        await user.save({ validateBeforeSave: false });
+      }
+    }
 
     res.cookie("refreshToken", "loggedout", {
       expires: new Date(Date.now() + 10 * 1000), // Expires quickly

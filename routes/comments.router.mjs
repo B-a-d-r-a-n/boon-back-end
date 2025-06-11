@@ -12,15 +12,6 @@ router.use(authenticate);
 
 // --- Route for posting a reply to a specific comment ---
 // We define this first as it's more specific than the other route.
-router.post(
-  "/:commentId/replies",
-  [
-    param("commentId").isMongoId().withMessage("Invalid comment ID."),
-    body("text").notEmpty().withMessage("Comment text cannot be empty."),
-  ],
-  validate,
-  postReply
-);
 
 // Note: We don't have a top-level POST /comments route.
 // Comments are always created in the context of an article.

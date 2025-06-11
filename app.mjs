@@ -21,6 +21,7 @@ import "./models/tag.model.mjs";
 import "./models/comment.model.mjs";
 import "./models/article.model.mjs"; // Order doesn't strictly matter here
 import "./models/book.model.mjs";
+
 const app = express();
 dotenv.config();
 
@@ -39,7 +40,7 @@ const limiter = rateLimit({
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -54,6 +55,7 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Routers
+
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/books", booksRouter);
 app.use("/api/v1/articles", articlesRouter);

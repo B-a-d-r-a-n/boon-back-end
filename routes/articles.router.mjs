@@ -15,7 +15,7 @@ import mongoose from "mongoose";
 import { authenticate } from "../middleware/authenticate.mjs"; // Import authenticate
 import { authorize } from "../middleware/authorize.mjs"; // Import authorize
 import coverImageUpload from "../middleware/coverImageUpload.mjs";
-import { postComment } from "../controllers/comment.controller.mjs";
+import { postComment, postReply } from "../controllers/comment.controller.mjs";
 
 const router = express.Router();
 // const cache = apicache.middleware; // Be careful caching authenticated user-specific routes
@@ -94,6 +94,17 @@ router.post(
   ],
   validate,
   postComment
+);
+//post reply to comment
+router.post(
+  "/:commentId/replies",
+  authenticate,
+  [
+    param("commentId").isMongoId().withMessage("Invalid comment ID."),
+    body("text").notEmpty().withMessage("Comment text cannot be empty."),
+  ],
+  validate,
+  postReply
 );
 // DELETE /articles/:id: PROTECTED - Delete an article (admin only)
 router.delete(
