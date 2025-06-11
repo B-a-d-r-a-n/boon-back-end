@@ -1,7 +1,8 @@
 // dev-data/seeder.mjs
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import bcrypt from "bcryptjs"; // Needed to manually hash passwords for seeding
+import bcrypt from "bcryptjs";
+import { Faker, en } from "@faker-js/faker";
 
 // Import all your models
 import User from "../models/user.model.mjs";
@@ -10,165 +11,196 @@ import Tag from "../models/tag.model.mjs";
 import Article from "../models/article.model.mjs";
 import Comment from "../models/comment.model.mjs";
 
-// Load environment variables (e.g., from a .env file)
+// Initialize Faker
+const faker = new Faker({ locale: [en] });
+
+// Load environment variables
 dotenv.config({ path: "./.env" });
 
 // --- DATABASE CONNECTION ---
-// Replace with your MongoDB connection string
 const DB = process.env.MONGODB_URI || "mongodb://localhost:27017/bloggy-db";
 
 mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
-// --- DELETE ALL EXISTING DATA ---
+// --- HELPER FUNCTIONS ---
+const createUsers = async () => {
+  console.log("Creating users...");
+  const usersData = [
+    {
+      name: "Alice Admin",
+      email: "alice@example.com",
+      password: "password123",
+      role: "admin",
+      avatarUrl: "uploads/avatars/avatar1.png",
+    },
+    {
+      name: "Bob Blogger",
+      email: "bob@example.com",
+      password: "password123",
+      avatarUrl: "uploads/avatars/avatar2.png",
+    },
+    {
+      name: "Charlie Commenter",
+      email: "charlie@example.com",
+      password: "password123",
+    },
+    {
+      name: "Diana Dev",
+      email: "diana@example.com",
+      password: "password123",
+      avatarUrl: "uploads/avatars/avatar3.png",
+    },
+    { name: "Eve Editor", email: "eve@example.com", password: "password123" },
+  ];
+
+  for (const user of usersData) {
+    user.password = await bcrypt.hash(user.password, 12);
+  }
+  return User.create(usersData);
+};
+
+const createCategoriesAndTags = async () => {
+  console.log("Creating categories and tags...");
+  const categoriesData = [
+    { name: "Technology" },
+    { name: "Health & Wellness" },
+    { name: "Business" },
+    { name: "Travel" },
+    { name: "Food" },
+  ];
+  const tagsData = [
+    { name: "react" },
+    { name: "nodejs" },
+    { name: "productivity" },
+    { name: "ai" },
+    { name: "cooking" },
+  ];
+
+  const categories = await Category.create(categoriesData);
+  const tags = await Tag.create(tagsData);
+  return { categories, tags };
+};
+
+const createArticles = async (users, categories, tags) => {
+  console.log("Creating articles...");
+  const articlesData = [];
+  for (let i = 0; i < 25; i++) {
+    const randomUser =
+      users[faker.number.int({ min: 0, max: users.length - 1 })];
+    const randomCategory =
+      categories[faker.number.int({ min: 0, max: categories.length - 1 })];
+    const randomTags = faker.helpers
+      .arrayElements(tags, faker.number.int({ min: 0, max: 3 }))
+      .map((t) => t._id);
+    const paragraphCount = faker.number.int({ min: 3, max: 40 }); // from short blogs to long essays
+    const content = `<h2>${faker.lorem.words({
+      min: 3,
+      max: 7,
+    })}</h2><p>${faker.lorem.paragraphs(paragraphCount, "\n\n</p><p>")}</p>`;
+    // Re-use our calculation logic for realistic seed data
+    const text = content.replace(/<[^>]+>/g, "");
+    const wordCount = text.trim().split(/\s+/).length;
+    const readTime = Math.max(1, Math.ceil(wordCount / 225));
+    articlesData.push({
+      title: faker.lorem.sentence({ min: 5, max: 10 }),
+      summary: faker.lorem.paragraph({ min: 2, max: 4 }),
+      content: content,
+      readTimeInMinutes: readTime,
+      author: randomUser._id,
+      category: randomCategory._id,
+      tags: randomTags,
+      coverImageUrl:
+        i % 3 !== 0
+          ? faker.image.urlLoremFlickr({ category: "abstract" })
+          : undefined,
+    });
+  }
+  return Article.create(articlesData);
+};
+
+const createCommentsAndReplies = async (users, articles) => {
+  console.log("Creating comments and replies...");
+  for (const article of articles) {
+    // Create 0 to 5 top-level comments for each article
+    for (let i = 0; i < faker.number.int({ min: 0, max: 5 }); i++) {
+      const randomUser =
+        users[faker.number.int({ min: 0, max: users.length - 1 })];
+      const topLevelComment = await Comment.create({
+        text: faker.lorem.sentence(),
+        author: randomUser._id,
+        article: article._id,
+      });
+      // Link comment to article
+      await Article.findByIdAndUpdate(article._id, {
+        $push: { comments: topLevelComment._id },
+      });
+
+      // Create 0 to 2 replies for some comments
+      if (faker.datatype.boolean()) {
+        for (let j = 0; j < faker.number.int({ min: 0, max: 2 }); j++) {
+          const randomReplyUser =
+            users[faker.number.int({ min: 0, max: users.length - 1 })];
+          const reply = await Comment.create({
+            text: faker.lorem.sentence({ min: 3, max: 8 }),
+            author: randomReplyUser._id,
+            article: article._id,
+          });
+          // Link reply to its parent comment
+          await Comment.findByIdAndUpdate(topLevelComment._id, {
+            $push: { replies: reply._id },
+          });
+        }
+      }
+    }
+  }
+};
+
+// --- MAIN SEEDING FUNCTIONS ---
+const importData = async () => {
+  try {
+    await deleteAllData(); // Start fresh
+
+    const users = await createUsers();
+    const { categories, tags } = await createCategoriesAndTags();
+    const articles = await createArticles(users, categories, tags);
+    await createCommentsAndReplies(users, articles);
+
+    console.log("\n✅✅✅ Data successfully loaded! ✅✅✅");
+  } catch (err) {
+    console.error("❌❌❌ ERROR SEEDING DATA ❌❌❌");
+    console.error(err);
+  } finally {
+    console.log("--- Disconnecting from DB ---");
+    mongoose.connection.close();
+  }
+};
+
 const deleteAllData = async () => {
   try {
     console.log("--- DELETING ALL DATA ---");
-    // Delete in reverse order of dependency
     await Comment.deleteMany();
     await Article.deleteMany();
     await Tag.deleteMany();
     await Category.deleteMany();
     await User.deleteMany();
-    console.log("All data successfully deleted!");
+    console.log("--- All data successfully deleted! ---");
   } catch (err) {
-    console.log(err);
-    process.exit(1);
+    console.error("❌❌❌ ERROR DELETING DATA ❌❌❌");
+    console.error(err);
+    process.exit(1); // Exit if delete fails
   }
-};
-
-// --- IMPORT DATA ---
-const importData = async () => {
-  try {
-    console.log("--- SEEDING DATABASE ---");
-
-    // 1. Create Users
-    const usersData = [
-      {
-        name: "Alex Johnson",
-        email: "alex@example.com",
-        password: "password123",
-        role: "admin",
-      },
-      {
-        name: "Samantha Lee",
-        email: "samantha@example.com",
-        password: "password123",
-      },
-      {
-        name: "Maria Garcia",
-        email: "maria@example.com",
-        password: "password123",
-      },
-      {
-        name: "David Chen",
-        email: "david@example.com",
-        password: "password123",
-      },
-    ];
-    // Manually hash passwords because the 'save' hook isn't run on create()
-    for (const user of usersData) {
-      user.password = await bcrypt.hash(user.password, 12);
-    }
-    const createdUsers = await User.create(usersData);
-    console.log("Users created...");
-
-    // 2. Create Categories & Tags
-    const categoriesData = [
-      { name: "Technology" },
-      { name: "Web Design" },
-      { name: "Security" },
-      { name: "Lifestyle" },
-      { name: "Travel" },
-    ];
-    const tagsData = [
-      { name: "react" },
-      { name: "tiptap" },
-      { name: "tailwind" },
-      { name: "nodejs" },
-    ];
-    const createdCategories = await Category.create(categoriesData);
-    const createdTags = await Tag.create(tagsData);
-    console.log("Categories & Tags created...");
-
-    // 3. Create Articles
-    const articlesData = [
-      {
-        title: "Mastering Modern React with TanStack",
-        summary: "A deep dive into TanStack...",
-        content: "<h2>Full Content Here</h2><p>This is the full text...</p>",
-        author: createdUsers[0]._id,
-        category: createdCategories[0]._id,
-        tags: [createdTags[0]._id, createdTags[2]._id],
-      },
-      {
-        title: "The Art of Headless UI Components",
-        summary: "Learn how to build truly reusable UI...",
-        content: "<h2>Headless UI Intro</h2><p>...</p>",
-        author: createdUsers[1]._id,
-        category: createdCategories[1]._id,
-        tags: [createdTags[1]._id, createdTags[2]._id],
-      },
-      {
-        title: "Top 10 Fall Recipes for a Cozy Evening",
-        summary: "From pumpkin spice lattes to hearty stews...",
-        content: "<h2>Recipe 1: Pumpkin Soup</h2><p>...</p>",
-        author: createdUsers[2]._id,
-        category: createdCategories[3]._id,
-        tags: [],
-      },
-      {
-        title: "Weekend Travel Guide: The Mountain Trail",
-        summary: "Discover the best hiking trails...",
-        content: "<h2>Day 1: The Ascent</h2><p>...</p>",
-        author: createdUsers[3]._id,
-        category: createdCategories[4]._id,
-        tags: [],
-      },
-    ];
-    const createdArticles = await Article.create(articlesData);
-    console.log("Articles created...");
-
-    // 4. Create Comments & Replies
-    const comment1 = await Comment.create({
-      text: "Great article, very helpful!",
-      author: createdUsers[1]._id,
-      article: createdArticles[0]._id,
-    });
-    const comment2 = await Comment.create({
-      text: "Thanks for sharing!",
-      author: createdUsers[2]._id,
-      article: createdArticles[0]._id,
-    });
-    const reply1 = await Comment.create({
-      text: "You're welcome!",
-      author: createdUsers[0]._id,
-      article: createdArticles[0]._id,
-    });
-
-    // Link the reply to its parent comment
-    await Comment.findByIdAndUpdate(comment2._id, {
-      $push: { replies: reply1._id },
-    });
-
-    // Link the top-level comments to the article
-    await Article.findByIdAndUpdate(createdArticles[0]._id, {
-      $set: { comments: [comment1._id, comment2._id] },
-    });
-    console.log("Comments & Replies created...");
-
-    console.log("Data successfully loaded!");
-  } catch (err) {
-    console.log(err);
-  }
-  process.exit();
 };
 
 // --- SCRIPT EXECUTION LOGIC ---
 if (process.argv[2] === "--import") {
   importData();
 } else if (process.argv[2] === "--delete") {
-  deleteAllData();
+  deleteAllData().then(() => mongoose.connection.close());
 } else {
-  console.log("Please specify an action: --import or --delete");
+  console.log("Please specify an action:");
+  console.log(
+    "  npm run seed:import   (Deletes all data and imports new data)"
+  );
+  console.log("  npm run seed:delete   (Deletes all data)");
   process.exit();
 }

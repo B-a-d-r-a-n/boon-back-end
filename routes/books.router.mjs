@@ -14,21 +14,22 @@ import {
 import mongoose from "mongoose";
 import { authenticate } from "../middleware/authenticate.mjs"; // Import authenticate
 import { authorize } from "../middleware/authorize.mjs"; // Import authorize
+import validate from "../middleware/validate.mjs";
 
 const router = express.Router();
 // const cache = apicache.middleware; // Be careful caching authenticated user-specific routes
 
-const validate = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const errorMessages = errors
-      .array()
-      .map((err) => err.msg)
-      .join(", ");
-    throw new GenericException(400, errorMessages);
-  }
-  next();
-};
+// const validate = (req, res, next) => {
+//   const errors = validationResult(req);
+//   if (!errors.isEmpty()) {
+//     const errorMessages = errors
+//       .array()
+//       .map((err) => err.msg)
+//       .join(", ");
+//     throw new GenericException(400, errorMessages);
+//   }
+//   next();
+// };
 
 // Protect all /books routes with authentication
 router.use(authenticate);

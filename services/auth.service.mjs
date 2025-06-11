@@ -2,6 +2,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.mjs";
 import GenericException from "../exceptions/GenericException.mjs";
+import UserNotFoundException from "../exceptions/UserNotFoundException.mjs";
 
 const signToken = (id, role, secret, expiresIn) => {
   return jwt.sign({ id, role }, secret, { expiresIn });

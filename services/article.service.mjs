@@ -3,7 +3,23 @@ import Article from "../models/article.model.mjs";
 import APIFeatures from "../utils/apiFeatures.mjs";
 import ArticleNotFoundException from "../exceptions/ArticleNotFoundException.mjs";
 import GenericException from "../exceptions/GenericException.mjs";
+import Comment from "../models/comment.model.mjs";
 
+const calculateReadingTime = (htmlContent) => {
+  if (!htmlContent) return 1;
+
+  // 1. Strip all HTML tags to get plain text.
+  const text = htmlContent.replace(/<[^>]+>/g, "");
+
+  // 2. Count the words.
+  const wordCount = text.trim().split(/\s+/).length;
+
+  // 3. Calculate minutes and round up to the nearest whole number.
+  const minutes = Math.ceil(wordCount / 225);
+
+  // 4. Ensure a minimum of 1 minute.
+  return Math.max(1, minutes);
+};
 class ArticleService {
   /**
    * REFACTORED: Retrieves articles with lean population for list view.
@@ -18,7 +34,7 @@ class ArticleService {
 
     // For fetching paginated data
     const populateOptions = [
-      { path: "author", select: "name" },
+      { path: "author", select: "name avatarUrl" },
       { path: "category", select: "name" },
     ];
 
@@ -47,7 +63,7 @@ class ArticleService {
       .populate({ path: "tags" })
       .populate({
         path: "comments", // LEVEL 1: Populate the 'comments' array on the Article
-        options: { sort: { createdAt: -1 } }, // Optional: sort top-level comments
+        options: { sort: { createdAt: 1 } }, // Optional: sort top-level comments
         populate: [
           {
             path: "author", // LEVEL 2a: For each comment, populate its 'author'
@@ -77,11 +93,17 @@ class ArticleService {
   async createArticle(articleData, userId) {
     try {
       // The controller will now pass summary, content, category, tags, etc.
-      let newArticle = new Article({ ...articleData, author: userId });
+      const readTime = calculateReadingTime(articleData.content);
+
+      // Create the new article object, including the calculated read time
+      let newArticle = new Article({
+        ...articleData,
+        author: userId,
+        readTimeInMinutes: readTime,
+      });
       await newArticle.save();
 
-      // Return the newly created and fully populated article
-      return this.getArticleById(newArticle._id);
+      return newArticle;
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors)
@@ -101,7 +123,6 @@ class ArticleService {
     if (!article) {
       throw new ArticleNotFoundException(id);
     }
-    // Authorization: only the author or an admin can update
     if (
       user.role !== "admin" &&
       article.author.toString() !== user._id.toString()
@@ -112,12 +133,17 @@ class ArticleService {
       );
     }
 
+    // ★★★ RECALCULATE READ TIME IF CONTENT IS IN THE UPDATE ★★★
+    if (updateData.content) {
+      updateData.readTimeInMinutes = calculateReadingTime(updateData.content);
+    }
+
     const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
 
-    return this.getArticleById(updatedArticle._id); // Return fully populated
+    return updatedArticle;
   }
 
   /**
@@ -129,7 +155,16 @@ class ArticleService {
       throw new ArticleNotFoundException(id);
     }
     // Authorization is already handled by middleware in the router
-
+    if (
+      user.role !== "admin" &&
+      article.author.toString() !== user._id.toString()
+    ) {
+      // If they are neither, throw a Forbidden error
+      throw new GenericException(
+        403,
+        "You do not have permission to delete this article."
+      );
+    }
     // TODO: Consider a more robust cleanup strategy for production.
     // This deletes comments associated with the article.
     await Comment.deleteMany({ article: id });

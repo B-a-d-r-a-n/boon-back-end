@@ -14,6 +14,8 @@ import {
 import mongoose from "mongoose";
 import { authenticate } from "../middleware/authenticate.mjs"; // Import authenticate
 import { authorize } from "../middleware/authorize.mjs"; // Import authorize
+import coverImageUpload from "../middleware/coverImageUpload.mjs";
+import { postComment } from "../controllers/comment.controller.mjs";
 
 const router = express.Router();
 // const cache = apicache.middleware; // Be careful caching authenticated user-specific routes
@@ -54,17 +56,14 @@ router.get(
 router.post(
   "/",
   authenticate, // Protect this specific route
-  upload.single("coverImage"),
+  coverImageUpload.single("coverImage"),
   [
     // REFACTORED: Update validation rules
     body("title").notEmpty().withMessage("Title is required").trim(),
     body("summary").notEmpty().withMessage("Summary is required").trim(),
     body("content").notEmpty().withMessage("Content is required"),
     body("category").isMongoId().withMessage("A valid category ID is required"),
-    body("tags")
-      .optional()
-      .isArray()
-      .withMessage("Tags must be an array of IDs"),
+    body("tags").optional(),
   ],
   validate,
   addArticle
@@ -74,7 +73,7 @@ router.post(
 router.patch(
   "/:id",
   authenticate, // Protect this specific route
-  upload.single("coverImage"),
+  coverImageUpload.single("coverImage"),
   [
     param("id").isMongoId().withMessage("Invalid Article ID"),
     // Add optional validation for new fields
@@ -85,12 +84,22 @@ router.patch(
   validate,
   updateArticle // Auth is handled in the service for ownership check
 );
-
+//post new comment
+router.post(
+  "/:articleId/comments",
+  authenticate,
+  [
+    param("articleId").isMongoId().withMessage("Invalid article ID."),
+    body("text").notEmpty().withMessage("Comment text cannot be empty."),
+  ],
+  validate,
+  postComment
+);
 // DELETE /articles/:id: PROTECTED - Delete an article (admin only)
 router.delete(
   "/:id",
   authenticate,
-  authorize("admin"), // Only admins can delete
+  // authorize("admin"), // Only admins can delete
   [param("id").isMongoId().withMessage("Invalid Article ID")],
   validate,
   deleteArticle

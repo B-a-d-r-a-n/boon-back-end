@@ -17,6 +17,11 @@ const articleSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    readTimeInMinutes: {
+      type: Number,
+      required: true,
+      default: 1, // A safe default
+    },
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,

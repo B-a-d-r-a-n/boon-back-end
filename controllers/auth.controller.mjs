@@ -36,14 +36,13 @@ const sendTokenResponse = (
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, passwordConfirm, role } = req.body; // Allow role for seeding admin
+    const { name, email, password, passwordConfirm } = req.body; // Allow role for seeding admin
     const newUser = await authService.registerUser({
       name,
       email,
       password,
       passwordConfirm,
-      role,
-    });
+    }); //add user role if needed
 
     // For registration, you might just send a success message or automatically log them in
     // Here, we'll automatically log them in by creating tokens

@@ -5,6 +5,8 @@ import { customExceptionHandler } from "./middleware/customExceptionHandler.mjs"
 import booksRouter from "./routes/books.router.mjs";
 import authRouter from "./routes/auth.router.mjs";
 import articlesRouter from "./routes/articles.router.mjs";
+import userRouter from "./routes/user.router.mjs";
+import commentsRouter from "./routes/comments.router.mjs";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
@@ -55,7 +57,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/books", booksRouter);
 app.use("/api/v1/articles", articlesRouter);
-
+app.use("/api/v1/comments", commentsRouter);
+app.use("/api/v1/user", userRouter);
 // Health check
 app.get("/health", (req, res) => res.status(200).send("OK"));
 

@@ -1,28 +1,28 @@
 // routes/auth.router.mjs
 import express from "express";
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import {
   register,
   login,
   refreshToken,
   logout,
 } from "../controllers/auth.controller.mjs";
-import GenericException from "../exceptions/GenericException.mjs";
+import validate from "../middleware/validate.mjs";
 
 const router = express.Router();
 
 // Validator middleware (similar to your books router)
-const validate = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const errorMessages = errors
-      .array()
-      .map((err) => err.msg)
-      .join(", ");
-    throw new GenericException(400, errorMessages);
-  }
-  next();
-};
+// const validate = (req, res, next) => {
+//   const errors = validationResult(req);
+//   if (!errors.isEmpty()) {
+//     const errorMessages = errors
+//       .array()
+//       .map((err) => err.msg)
+//       .join(", ");
+//     throw new GenericException(400, errorMessages);
+//   }
+//   next();
+// };
 
 router.post(
   "/register",
