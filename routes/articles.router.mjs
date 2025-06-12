@@ -15,7 +15,12 @@ import mongoose from "mongoose";
 import { authenticate } from "../middleware/authenticate.mjs"; // Import authenticate
 import { authorize } from "../middleware/authorize.mjs"; // Import authorize
 import coverImageUpload from "../middleware/coverImageUpload.mjs";
-import { postComment, postReply } from "../controllers/comment.controller.mjs";
+import {
+  deleteComment,
+  getCommentsByArticle,
+  postComment,
+  postReply,
+} from "../controllers/comment.controller.mjs";
 
 const router = express.Router();
 // const cache = apicache.middleware; // Be careful caching authenticated user-specific routes
@@ -51,7 +56,13 @@ router.get(
   validate,
   getArticleById
 );
-
+// GET /api/v1/articles/:articleId/comments
+router.get(
+  "/:articleId/comments",
+  [param("articleId").isMongoId().withMessage("Invalid article ID.")],
+  validate,
+  getCommentsByArticle
+);
 // POST /articles: PROTECTED - Create an article
 router.post(
   "/",
@@ -84,28 +95,7 @@ router.patch(
   validate,
   updateArticle // Auth is handled in the service for ownership check
 );
-//post new comment
-router.post(
-  "/:articleId/comments",
-  authenticate,
-  [
-    param("articleId").isMongoId().withMessage("Invalid article ID."),
-    body("text").notEmpty().withMessage("Comment text cannot be empty."),
-  ],
-  validate,
-  postComment
-);
-//post reply to comment
-router.post(
-  "/:commentId/replies",
-  authenticate,
-  [
-    param("commentId").isMongoId().withMessage("Invalid comment ID."),
-    body("text").notEmpty().withMessage("Comment text cannot be empty."),
-  ],
-  validate,
-  postReply
-);
+
 // DELETE /articles/:id: PROTECTED - Delete an article (admin only)
 router.delete(
   "/:id",

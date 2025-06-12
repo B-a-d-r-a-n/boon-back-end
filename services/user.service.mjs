@@ -1,4 +1,5 @@
 // services/user.service.mjs
+import UserNotFoundException from "../exceptions/UserNotFoundException.mjs";
 import User from "../models/user.model.mjs";
 
 class UserService {

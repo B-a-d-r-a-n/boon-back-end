@@ -2,7 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { customExceptionHandler } from "./middleware/customExceptionHandler.mjs";
-import booksRouter from "./routes/books.router.mjs";
+
 import authRouter from "./routes/auth.router.mjs";
 import articlesRouter from "./routes/articles.router.mjs";
 import userRouter from "./routes/user.router.mjs";
@@ -19,8 +19,7 @@ import "./models/user.model.mjs";
 import "./models/category.model.mjs";
 import "./models/tag.model.mjs";
 import "./models/comment.model.mjs";
-import "./models/article.model.mjs"; // Order doesn't strictly matter here
-import "./models/book.model.mjs";
+import "./models/article.model.mjs";
 
 const app = express();
 dotenv.config();
@@ -57,7 +56,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routers
 
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/books", booksRouter);
+
 app.use("/api/v1/articles", articlesRouter);
 app.use("/api/v1/comments", commentsRouter);
 app.use("/api/v1/user", userRouter);
