@@ -37,9 +37,10 @@ const limiter = rateLimit({
   message: "Blocked, try again after 15 minutes",
 });
 
+const frontendUrl = process.env.FrontEnd_url;
 //cors policy
 const allowedOrigins = [
-  "http://localhost:5173", // Your Vite dev server
+  frontendUrl, // Your Vite dev server
   // Add your production frontend URL here when you deploy
   "https://www.your-production-site.com",
 ];
