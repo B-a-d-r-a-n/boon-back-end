@@ -46,7 +46,7 @@ class ArticleService {
       .limitFields() // Note: This will now select summary, coverImageUrl etc.
       .paginate()
       .populate(populateOptions);
-
+    features.query = features.query.select("+coverImageUrl");
     const articles = await features.query;
 
     return { articles, total, pagination: features.pagination };

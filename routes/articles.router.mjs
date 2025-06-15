@@ -3,7 +3,7 @@ import express from "express";
 import { body, param, validationResult } from "express-validator";
 import GenericException from "../exceptions/GenericException.mjs";
 // import apicache from "apicache"; // Caching might need re-evaluation with user-specific data
-import upload from "../middleware/multerConfig.mjs";
+
 import {
   getAllArticles,
   getArticleById,
@@ -21,6 +21,7 @@ import {
   postComment,
   postReply,
 } from "../controllers/comment.controller.mjs";
+import upload from "../middleware/cloudinary.mjs";
 
 const router = express.Router();
 // const cache = apicache.middleware; // Be careful caching authenticated user-specific routes
