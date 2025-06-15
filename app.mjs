@@ -41,7 +41,7 @@ const limiter = rateLimit({
 const allowedOrigins = [
   "http://localhost:5173", // Your Vite dev server
   // Add your production frontend URL here when you deploy
-  // 'https://www.your-production-site.com',
+  "https://www.your-production-site.com",
 ];
 
 // --- 2. Configure Helmet ---
