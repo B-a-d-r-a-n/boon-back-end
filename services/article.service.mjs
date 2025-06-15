@@ -1,9 +1,9 @@
 // services/article.service.mjs
 import Article from "../models/article.model.mjs";
-import APIFeatures from "../utils/apiFeatures.mjs";
 import ArticleNotFoundException from "../exceptions/ArticleNotFoundException.mjs";
 import GenericException from "../exceptions/GenericException.mjs";
 import Comment from "../models/comment.model.mjs";
+import APIFeatures from "../utils/apiFeatures.mjs";
 
 const calculateReadingTime = (htmlContent) => {
   if (!htmlContent) return 1;
