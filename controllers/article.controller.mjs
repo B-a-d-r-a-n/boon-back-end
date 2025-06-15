@@ -34,7 +34,6 @@ export const getAllArticles = async (req, res, next) => {
 export const getArticleById = async (req, res, next) => {
   try {
     const id = req.params.id;
-    // The service now returns the fully populated article
     const article = await ArticleService.getArticleById(id, req.user);
     res.status(200).json(article);
   } catch (error) {
@@ -51,13 +50,6 @@ export const addArticle = async (req, res, next) => {
     const { title, summary, content, category } = req.body;
     let { tags } = req.body; // Handle tags separately as it might be a string
 
-    // 2. Handle the file upload from Multer
-    // Multer places the file info in req.file
-    // The path property gives the location on disk, e.g., 'uploads/covers/cover-123.jpg'
-    const coverImage = req.file ? req.file.path : undefined;
-
-    // 3. IMPORTANT: Parse tags if they are sent as a JSON string
-    // This is very common with multipart/form-data
     if (tags && typeof tags === "string") {
       try {
         tags = JSON.parse(tags);
@@ -71,17 +63,24 @@ export const addArticle = async (req, res, next) => {
         );
       }
     }
+    // 2. Handle the file upload from Multer
+    // Multer places the file info in req.file
+    // The path property gives the location on disk, e.g., 'uploads/covers/cover-123.jpg'
+    const coverImageUrl = req.file ? req.file.path : undefined;
 
-    // 4. Assemble the final data object to pass to the service
-    const articleData = { title, summary, content, category, tags };
-    if (coverImage) {
-      articleData.coverImageUrl = coverImage;
-    }
+    // Assemble the data object. We are now saving a full URL.
+    const articleData = {
+      title,
+      summary,
+      content,
+      category,
+      tags,
+      coverImageUrl,
+    };
 
-    // 5. Call the service with the clean data
     const newArticle = await ArticleService.createArticle(
       articleData,
-      req.user._id // The logged-in user's ID from the `authenticate` middleware
+      req.user._id
     );
 
     res.status(201).json(newArticle);
@@ -102,8 +101,8 @@ export const updateArticle = async (req, res, next) => {
 
     // 1. Handle a potential file upload for updating the cover image
     if (req.file) {
+      // Get the new URL from Cloudinary.
       updateData.coverImageUrl = req.file.path;
-      // TODO: In a real app, you should also delete the OLD image file from storage here
     }
 
     // 2. Parse tags if they were updated and sent as a string

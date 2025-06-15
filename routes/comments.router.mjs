@@ -15,23 +15,9 @@ const router = express.Router();
 // All comment/reply actions require a user to be logged in.
 router.use(authenticate);
 
-// --- Route for posting a reply to a specific comment ---
-// We define this first as it's more specific than the other route.
-//post new comment
-router.post(
-  "/:articleId/comments",
-  //   authenticate,
-  [
-    param("articleId").isMongoId().withMessage("Invalid article ID."),
-    body("text").notEmpty().withMessage("Comment text cannot be empty."),
-  ],
-  validate,
-  postComment
-);
-//post reply to comment
+// POST /api/v1/comments/:commentId/replies
 router.post(
   "/:commentId/replies",
-  //   authenticate,
   [
     param("commentId").isMongoId().withMessage("Invalid comment ID."),
     body("text").notEmpty().withMessage("Comment text cannot be empty."),
@@ -39,9 +25,10 @@ router.post(
   validate,
   postReply
 );
+
+// PATCH /api/v1/comments/:commentId
 router.patch(
   "/:commentId",
-  //   authenticate, // User must be logged in to edit
   [
     param("commentId").isMongoId().withMessage("Invalid comment ID."),
     body("text").notEmpty().withMessage("Comment text cannot be empty."),
@@ -49,18 +36,15 @@ router.patch(
   validate,
   updateCommentController
 );
-//delete comment
+
+// DELETE /api/v1/comments/:commentId
+// Note: your original route used `:id`, let's make it consistent with `:commentId`
 router.delete(
-  "/:id",
-  //   authenticate,
-  [param("id").isMongoId().withMessage("Invalid Comment ID")],
+  "/:commentId",
+  [param("commentId").isMongoId().withMessage("Invalid Comment ID")],
   validate,
   deleteComment
 );
-
-// Note: We don't have a top-level POST /comments route.
-// Comments are always created in the context of an article.
-
 // We will mount this router in app.mjs at /api/v1/comments
 
 export default router;

@@ -63,11 +63,23 @@ router.get(
   validate,
   getCommentsByArticle
 );
+
+// POST /api/v1/articles/:articleId/comments
+router.post(
+  "/:articleId/comments",
+  authenticate, // Protect this route
+  [
+    param("articleId").isMongoId().withMessage("Invalid article ID."),
+    body("text").notEmpty().withMessage("Comment text cannot be empty."),
+  ],
+  validate,
+  postComment
+);
 // POST /articles: PROTECTED - Create an article
 router.post(
   "/",
   authenticate, // Protect this specific route
-  coverImageUpload.single("coverImage"),
+  upload.single("coverImage"),
   [
     // REFACTORED: Update validation rules
     body("title").notEmpty().withMessage("Title is required").trim(),
@@ -84,7 +96,7 @@ router.post(
 router.patch(
   "/:id",
   authenticate, // Protect this specific route
-  coverImageUpload.single("coverImage"),
+  upload.single("coverImage"),
   [
     param("id").isMongoId().withMessage("Invalid Article ID"),
     // Add optional validation for new fields

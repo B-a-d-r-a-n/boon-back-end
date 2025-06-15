@@ -7,27 +7,21 @@ import CommentNotFoundException from "../exceptions/CommentNotFoundException.mjs
 import APIFeatures from "../utils/apiFeatures.mjs";
 
 /**
- * A private helper function to recursively delete a comment and all its replies.
+ * A private helper function to recursively delete a comment and all its children.
  * This should NOT be exported or called directly from the controller.
  * @param {string} commentId - The ID of the comment to start deleting from.
  */
 async function _deleteCommentAndChildren(commentId) {
-  // 1. Find the comment to get its list of replies
   const comment = await Comment.findById(commentId);
-
-  // If the comment doesn't exist (e.g., already deleted by another recursive call), stop.
   if (!comment) return;
 
-  // 2. If this comment has replies, recursively call this function for each reply
   if (comment.replies && comment.replies.length > 0) {
-    // We use Promise.all to run the deletions of all children in parallel for efficiency
     await Promise.all(
       comment.replies.map((replyId) => _deleteCommentAndChildren(replyId))
     );
   }
 
-  // 3. After all children are gone, delete the comment itself
-  return await Comment.findByIdAndDelete(commentId);
+  await Comment.findByIdAndDelete(commentId);
 }
 
 class CommentService {
@@ -50,35 +44,40 @@ class CommentService {
     const article = await Article.findById(articleId).select("comments");
     const topLevelCommentIds = article.comments;
 
-    // The base query finds all comments whose ID is in our top-level list.
-    const baseQuery = Comment.find({ _id: { $in: topLevelCommentIds } });
-
-    // Use APIFeatures for pagination and sorting
-    const features = new APIFeatures(baseQuery, queryString)
-      .sort() // Allows sorting comments (e.g., ?sort=-createdAt)
-      .paginate();
-
-    // Now, populate the results after pagination
-    const populateOptions = [
-      {
-        path: "author", // Rule 1: Populate the author of the top-level comment
-        select: "name avatarUrl",
-      },
-      {
-        path: "replies", // Rule 2: Populate the replies of the top-level comment
-        populate: {
-          path: "author", // Deep populate: For each reply, populate ITS author
-          select: "name avatarUrl",
+    const deepPopulate = {
+      path: "replies",
+      options: { sort: { createdAt: 1 } },
+      populate: [
+        { path: "author", select: "name avatarUrl" },
+        {
+          // This is the recursive part. We re-apply the same population
+          // to the 'replies' field of the document we are currently populating.
+          path: "replies",
+          populate: [
+            { path: "author", select: "name avatarUrl" },
+            {
+              path: "replies",
+              populate: [
+                { path: "author", select: "name avatarUrl" },
+                // You can continue this pattern as deep as you need.
+                // 3-5 levels is often sufficient.
+              ],
+            },
+          ],
         },
-      },
-    ];
+      ],
+    };
 
-    // Apply the array of population rules
-    features.query = features.query.populate(populateOptions);
+    const baseQuery = Comment.find({ _id: { $in: topLevelCommentIds } });
+    const features = new APIFeatures(baseQuery, queryString).sort().paginate();
+
+    // Apply the population rules
+    features.query = features.query.populate([
+      { path: "author", select: "name avatarUrl" },
+      deepPopulate, // Apply our deep population rule for replies
+    ]);
 
     const comments = await features.query;
-
-    // Get total count for pagination metadata
     const total = topLevelCommentIds.length;
 
     return { comments, total, pagination: features.pagination };
@@ -187,17 +186,15 @@ class CommentService {
     return newReply;
   }
   async deleteComment(commentId, user) {
-    // 1. Find the target comment in one go. We need it for authorization and to find its parent.
+    // 1. Find the target comment first to ensure it exists and for authorization.
     const commentToDelete = await Comment.findById(commentId).populate(
       "author"
     );
-
-    // 2. Handle not found case
     if (!commentToDelete) {
       throw new CommentNotFoundException(commentId);
     }
 
-    // 3. Perform authorization check here. This is the correct layer for this logic.
+    // 2. Authorization check (only the author or an admin can delete).
     if (
       user.role !== "admin" &&
       commentToDelete.author._id.toString() !== user._id.toString()
@@ -208,23 +205,26 @@ class CommentService {
       );
     }
 
-    // 4. Clean up the reference from the parent document (either an Article or another Comment)
-    // This is a crucial step to prevent "dangling" IDs in your database.
+    // 3. Atomically remove the reference to this comment from ANY document that might hold it.
+    //    We use Promise.all to run these two cleanup operations in parallel for efficiency.
+    await Promise.all([
+      // A) Try to remove it from any parent comment's `replies` array.
+      Comment.updateOne(
+        { replies: commentToDelete._id },
+        { $pull: { replies: commentToDelete._id } }
+      ),
+      // B) Try to remove it from any article's `comments` array.
+      Article.updateOne(
+        { comments: commentToDelete._id },
+        { $pull: { comments: commentToDelete._id } }
+      ),
+    ]);
 
-    // Check if any other comment lists this one as a reply
-    await Comment.updateMany(
-      { replies: commentToDelete._id },
-      { $pull: { replies: commentToDelete._id } }
-    );
-    // Check if any article lists this one as a top-level comment
-    await Article.updateMany(
-      { comments: commentToDelete._id },
-      { $pull: { comments: commentToDelete._id } }
-    );
+    // 4. Start the recursive deletion process to clean up the comment and all its children.
+    await _deleteCommentAndChildren(commentId);
 
-    // 5. Start the recursive deletion process
-    // Deletion is successful, no need to return anything.
-    return await _deleteCommentAndChildren(commentId);
+    // 5. Return the document that was deleted.
+    return commentToDelete;
   }
 }
 

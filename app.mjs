@@ -7,6 +7,8 @@ import authRouter from "./routes/auth.router.mjs";
 import articlesRouter from "./routes/articles.router.mjs";
 import userRouter from "./routes/user.router.mjs";
 import commentsRouter from "./routes/comments.router.mjs";
+import categoryRouter from "./routes/category.router.mjs";
+import tagRouter from "./routes/tag.router.mjs";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
@@ -36,17 +38,48 @@ const limiter = rateLimit({
 });
 
 //cors policy
+const allowedOrigins = [
+  "http://localhost:5173", // Your Vite dev server
+  // Add your production frontend URL here when you deploy
+  // 'https://www.your-production-site.com',
+];
+
+// --- 2. Configure Helmet ---
+// Helmet should come first to set security headers.
 app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+  helmet({
+    // This is the modern replacement for setting CORP headers manually.
+    // It tells browsers that resources from this origin can be embedded on other pages.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    // We can let the `cors` package handle the `Origin` header.
+    // Setting this to false prevents conflicts between Helmet and cors.
+    crossOriginOpenerPolicy: false,
   })
 );
 
-//middlewares
-app.use(helmet());
+// --- 3. Configure CORS using the modern function-based origin ---
+// This is the most robust way to handle multiple origins and credentials.
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // The `origin` argument will be the URL of your frontend.
+      // Allow requests with no origin (like Postman, mobile apps, server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Check if the incoming origin is in our list of allowed origins.
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+
+      // If the origin is allowed, pass `null` for the error and `true` for success.
+      return callback(null, true);
+    },
+    credentials: true, // This is essential for sending cookies (for your httpOnly refresh token)
+  })
+);
+
 app.use(limiter);
 app.use(express.json({ limit: "500kb" }));
 app.use(express.urlencoded({ extended: true, limit: "500kb" }));
@@ -57,10 +90,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routers
 
 app.use("/api/v1/auth", authRouter);
-
 app.use("/api/v1/articles", articlesRouter);
 app.use("/api/v1/comments", commentsRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/tags", tagRouter);
 // Health check
 app.get("/health", (req, res) => res.status(200).send("OK"));
 

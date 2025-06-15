@@ -93,38 +93,23 @@ class ArticleService {
    */
   async createArticle(articleData, userId) {
     try {
-      // The controller will now pass summary, content, category, tags, etc.
       const readTime = calculateReadingTime(articleData.content);
 
-      // Create the new article object, including the calculated read time
-      let newArticle = new Article({
+      // The `articleData` object already has the coverImageUrl if it exists.
+      // We just create the document with all the provided data.
+      const newArticleDocument = await Article.create({
         ...articleData,
         author: userId,
         readTimeInMinutes: readTime,
       });
-      await newArticle.save();
-      return Article.find(newArticle)
+
+      // Fetch it back to populate relationships.
+      const populatedArticle = await Article.findById(newArticleDocument._id)
         .populate({ path: "author", select: "name avatarUrl" })
         .populate({ path: "category", select: "name" })
-        .populate({ path: "tags", select: "name" })
-        .populate({
-          path: "comments", // LEVEL 1: Populate the 'comments' array on the Article
-          options: { sort: { createdAt: 1 } }, // Optional: sort top-level comments
-          populate: [
-            {
-              path: "author", // LEVEL 2a: For each comment, populate its 'author'
-              select: "name avatarUrl",
-            },
-            {
-              path: "replies", // LEVEL 2b: For each comment, populate its 'replies' array
-              options: { sort: { createdAt: 1 } }, // Optional: sort replies oldest to newest
-              populate: {
-                path: "author", // LEVEL 3: For each of those replies, populate ITS 'author'
-                select: "name avatarUrl",
-              },
-            },
-          ],
-        });
+        .populate({ path: "tags", select: "name" });
+
+      return populatedArticle;
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors)
@@ -137,7 +122,8 @@ class ArticleService {
   }
 
   /**
-   * REFACTORED: Updates an article.
+   * UPDATED: Updates an article. The `updateData` from the controller
+   * will contain the new `coverImageUrl` if a new image was uploaded.
    */
   async updateArticle(id, updateData, user) {
     const article = await Article.findById(id);
@@ -154,43 +140,23 @@ class ArticleService {
       );
     }
 
-    // ★★★ RECALCULATE READ TIME IF CONTENT IS IN THE UPDATE ★★★
     if (updateData.content) {
       updateData.readTimeInMinutes = calculateReadingTime(updateData.content);
     }
 
+    // Find the article by ID and update it with the new data.
+    // The `updateData` object will have the `coverImageUrl` already.
     const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
-      new: true,
+      new: true, // Return the updated document
       runValidators: true,
     })
       .populate({ path: "author", select: "name avatarUrl" })
       .populate({ path: "category", select: "name" })
-      .populate({ path: "tags", select: "name" })
-      .populate({
-        path: "comments", // LEVEL 1: Populate the 'comments' array on the Article
-        options: { sort: { createdAt: 1 } }, // Optional: sort top-level comments
-        populate: [
-          {
-            path: "author", // LEVEL 2a: For each comment, populate its 'author'
-            select: "name avatarUrl",
-          },
-          {
-            path: "replies", // LEVEL 2b: For each comment, populate its 'replies' array
-            options: { sort: { createdAt: 1 } }, // Optional: sort replies oldest to newest
-            populate: {
-              path: "author", // LEVEL 3: For each of those replies, populate ITS 'author'
-              select: "name avatarUrl",
-            },
-          },
-        ],
-      });
+      .populate({ path: "tags", select: "name" });
 
     return updatedArticle;
   }
 
-  /**
-   * REFACTORED: Deletes an article and its associated comments.
-   */
   async deleteArticle(id, user) {
     const article = await Article.findById(id);
     if (!article) {

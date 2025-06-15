@@ -1,12 +1,15 @@
-// models/article.model.mjs
 import mongoose from "mongoose";
 
 const articleSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
-    summary: { type: String, required: true }, // For the list view
-    content: { type: String, required: true }, // The full HTML content
+    summary: { type: String, required: true },
+    content: { type: String, required: true },
+
+    // --- THIS IS THE CHANGE ---
+    // We now store the full URL from Cloudinary directly.
     coverImageUrl: { type: String, required: false },
+
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -17,45 +20,25 @@ const articleSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    readTimeInMinutes: {
-      type: Number,
-      required: true,
-      default: 1, // A safe default
-    },
-    tags: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag",
-      },
-    ],
-    // We only store references to the top-level comments.
-    // Replies are handled within the Comment model itself.
-    comments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
+    readTimeInMinutes: { type: Number, required: true, default: 1 },
+    tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   },
   {
     timestamps: true,
-    // Important for virtuals to be included in JSON responses
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-// Create a text index for powerful searching capabilities.
-// We give 'title' a higher weight, so matches in the title are more relevant.
+// The text index remains the same and is good.
 articleSchema.index(
   { title: "text", summary: "text" },
   { weights: { title: 10, summary: 5 } }
 );
 
-// VIRTUAL PROPERTY: Create a `commentCount` that is calculated on the fly.
-// This is more efficient than storing and updating a count field in the DB.
+// The commentCount virtual property also remains the same.
 articleSchema.virtual("commentCount").get(function () {
-  // `this.comments` refers to the comments array in the document.
   return this.comments.length;
 });
 

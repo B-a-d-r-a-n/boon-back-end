@@ -17,6 +17,7 @@
     "@faker-js/faker": "^9.8.0",
     "apicache": "^1.6.3",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -28,6 +29,7 @@
     "mongoose": "^8.15.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
+    "multer-storage-cloudinary": "^4.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0"
