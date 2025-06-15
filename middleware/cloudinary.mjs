@@ -16,20 +16,19 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    // The folder in your Cloudinary account where images will be stored
     folder: "bloggy_covers",
-    // Allowed formats for uploaded images
     allowed_formats: ["jpeg", "png", "jpg", "webp"],
-    // Optional: A transformation to apply to every uploaded image.
-    // This is incredibly powerful. Here, we're resizing images to a max width
-    // of 1200px and auto-optimizing the quality and format.
     transformation: [{ width: 1200, height: 630, crop: "limit" }],
-    // public_id can be used to set a custom filename.
-    // Here, we leave it to Cloudinary to generate a unique ID.
   },
 });
 
 // Create the Multer upload instance
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    // Set the file size limit here. 5MB is a generous but safe limit.
+    fileSize: 5 * 1024 * 1024, // 5 Megabytes
+  },
+});
 
 export default upload;
