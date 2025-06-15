@@ -36,6 +36,7 @@ class ArticleService {
     const populateOptions = [
       { path: "author", select: "name avatarUrl" },
       { path: "category", select: "name" },
+      { path: "tags", select: "name" },
     ];
 
     const features = new APIFeatures(Article.find(), queryString, Article)
@@ -59,8 +60,8 @@ class ArticleService {
   async getArticleById(id, user) {
     const article = await Article.findById(id)
       .populate({ path: "author", select: "name avatarUrl" })
-      .populate({ path: "category" })
-      .populate({ path: "tags" })
+      .populate({ path: "category", select: "name" })
+      .populate({ path: "tags", select: "name" })
       .populate({
         path: "comments", // LEVEL 1: Populate the 'comments' array on the Article
         options: { sort: { createdAt: 1 } }, // Optional: sort top-level comments
@@ -102,8 +103,28 @@ class ArticleService {
         readTimeInMinutes: readTime,
       });
       await newArticle.save();
-
-      return newArticle;
+      return Article.find(newArticle)
+        .populate({ path: "author", select: "name avatarUrl" })
+        .populate({ path: "category", select: "name" })
+        .populate({ path: "tags", select: "name" })
+        .populate({
+          path: "comments", // LEVEL 1: Populate the 'comments' array on the Article
+          options: { sort: { createdAt: 1 } }, // Optional: sort top-level comments
+          populate: [
+            {
+              path: "author", // LEVEL 2a: For each comment, populate its 'author'
+              select: "name avatarUrl",
+            },
+            {
+              path: "replies", // LEVEL 2b: For each comment, populate its 'replies' array
+              options: { sort: { createdAt: 1 } }, // Optional: sort replies oldest to newest
+              populate: {
+                path: "author", // LEVEL 3: For each of those replies, populate ITS 'author'
+                select: "name avatarUrl",
+              },
+            },
+          ],
+        });
     } catch (error) {
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors)
@@ -141,7 +162,28 @@ class ArticleService {
     const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
-    });
+    })
+      .populate({ path: "author", select: "name avatarUrl" })
+      .populate({ path: "category", select: "name" })
+      .populate({ path: "tags", select: "name" })
+      .populate({
+        path: "comments", // LEVEL 1: Populate the 'comments' array on the Article
+        options: { sort: { createdAt: 1 } }, // Optional: sort top-level comments
+        populate: [
+          {
+            path: "author", // LEVEL 2a: For each comment, populate its 'author'
+            select: "name avatarUrl",
+          },
+          {
+            path: "replies", // LEVEL 2b: For each comment, populate its 'replies' array
+            options: { sort: { createdAt: 1 } }, // Optional: sort replies oldest to newest
+            populate: {
+              path: "author", // LEVEL 3: For each of those replies, populate ITS 'author'
+              select: "name avatarUrl",
+            },
+          },
+        ],
+      });
 
     return updatedArticle;
   }

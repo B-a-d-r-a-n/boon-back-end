@@ -70,25 +70,34 @@ export const login = async (req, res, next) => {
 
 export const refreshToken = async (req, res, next) => {
   try {
-    const incomingRefreshToken =
-      req.cookies.refreshToken || req.body.refreshToken;
+    // 1. Get the token from the cookie. This is the controller's job.
+    const incomingRefreshToken = req.cookies.refreshToken;
+
+    // 2. If no token is found, pass a specific 401 error to the error handler.
     if (!incomingRefreshToken) {
       return next(
-        new GenericException(401, "Refresh token not found. Please log in.")
+        new GenericException(
+          401,
+          "Refresh token not found. Please log in again."
+        )
       );
     }
 
+    // 3. Call the clean service method with just the token string.
     const user = await authService.verifyRefreshToken(incomingRefreshToken);
-    const newAccessToken = authService.createAccessToken(user);
 
-    //new refresh token creation
+    // 4. If the service returns a user, create new tokens.
+    const newAccessToken = authService.createAccessToken(user);
     const newRefreshToken = authService.createRefreshToken(user);
+
+    // 5. Send the successful response.
     sendTokenResponse(user, newAccessToken, newRefreshToken, 200, res);
   } catch (error) {
+    // 6. If authService.verifyRefreshToken throws ANY error, it will be caught here
+    //    and passed to the global error handler. This is correct!
     next(error);
   }
 };
-
 export const logout = async (req, res, next) => {
   try {
     // To properly logout with JWTs, the client needs to discard the token.

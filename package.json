@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node app.mjs",
     "dev": "nodemon app.mjs",
-    "seed:import": "node dev-data/seeder.mjs --import",
-    "seed:delete": "node dev-data/seeder.mjs --delete",
+    "seed": "node seed.mjs",
     "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles --forceExit"
   },
   "keywords": [],

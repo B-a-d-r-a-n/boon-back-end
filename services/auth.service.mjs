@@ -71,30 +71,46 @@ class AuthService {
       process.env.JWT_REFRESH_EXPIRES_IN
     );
   }
-
+  /**
+   * CORRECTED: This function's only job is to verify a token string.
+   * It does not know about req, res, or next.
+   * It either returns a user or throws a specific error.
+   */
   async verifyRefreshToken(token) {
     try {
+      // 1. Decode the token to get the user ID
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+      // 2. Find the user based on the ID from the token
       const freshUser = await User.findById(decoded.id);
+
+      // 3. If the user doesn't exist anymore, throw an error
       if (!freshUser) {
         throw new GenericException(
           401,
           "User belonging to this token no longer exists."
         );
       }
-      // Optional: check if refresh token is among active/valid tokens for this user
-      // if (freshUser.refreshToken !== token) { // If storing single refresh token per user
-      //   throw new GenericException(401, 'Invalid refresh token or session expired.');
-      // }
+
+      // 4. (Optional but good) Check if the user changed their password after the token was issued
+      if (freshUser.changedPasswordAfter(decoded.iat)) {
+        throw new GenericException(
+          401,
+          "User recently changed password! Please log in again."
+        );
+      }
+
+      // 5. If everything is okay, return the user object
       return freshUser;
     } catch (err) {
-      // Handle specific JWT errors like TokenExpiredError, JsonWebTokenError
+      // Catch JWT-specific errors and re-throw them as our GenericException
       if (err.name === "TokenExpiredError") {
         throw new GenericException(
           401,
-          "Refresh token expired. Please log in again."
+          "Refresh token has expired. Please log in again."
         );
       }
+      // For any other JWT error (e.g., malformed token)
       throw new GenericException(401, "Invalid refresh token.");
     }
   }
