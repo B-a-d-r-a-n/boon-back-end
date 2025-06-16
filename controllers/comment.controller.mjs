@@ -94,7 +94,9 @@ export const postReply = async (req, res, next) => {
 
 export const deleteComment = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const id = req.params.commentId;
+    console.log("logging from controller id is:", id);
+
     const deletedComment = await CommentService.deleteComment(id, req.user);
     res.status(200).json(deletedComment);
   } catch (error) {

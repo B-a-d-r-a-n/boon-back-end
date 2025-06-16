@@ -186,6 +186,8 @@ class CommentService {
     return newReply;
   }
   async deleteComment(commentId, user) {
+    console.log("logging from service id is:", commentId);
+
     // 1. Find the target comment first to ensure it exists and for authorization.
     const commentToDelete = await Comment.findById(commentId).populate(
       "author"
