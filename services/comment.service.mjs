@@ -6,24 +6,19 @@ import ArticleNotFoundException from "../exceptions/ArticleNotFoundException.mjs
 import CommentNotFoundException from "../exceptions/CommentNotFoundException.mjs";
 import APIFeatures from "../utils/apiFeatures.mjs";
 
-/**
- * A private helper function to recursively delete a comment and all its children.
- * This should NOT be exported or called directly from the controller.
- * @param {string} commentId - The ID of the comment to start deleting from.
- */
-async function _deleteCommentAndChildren(commentId) {
-  const comment = await Comment.findById(commentId);
-  if (!comment) return;
+async function _getReplyIds(commentId) {
+  const comment = await Comment.findById(commentId).select("replies").lean();
+  if (!comment) return [];
 
+  let ids = [commentId];
   if (comment.replies && comment.replies.length > 0) {
-    await Promise.all(
-      comment.replies.map((replyId) => _deleteCommentAndChildren(replyId))
+    const childIds = await Promise.all(
+      comment.replies.map((replyId) => _getReplyIds(replyId.toString()))
     );
+    ids = ids.concat(...childIds);
   }
-
-  await Comment.findByIdAndDelete(commentId);
+  return ids;
 }
-
 class CommentService {
   /**
    * NEW: Retrieves all top-level comments for an article with pagination.
@@ -123,30 +118,22 @@ class CommentService {
    * @returns {Promise<Comment>}
    */
   async addCommentToArticle(articleId, text, userId) {
-    // 1. Check if the article exists
     const article = await Article.findById(articleId);
-    if (!article) {
-      throw new ArticleNotFoundException(articleId);
-    }
+    if (!article) throw new ArticleNotFoundException(articleId);
 
-    // 2. Create the new comment document
-    let newComment = new Comment({
+    const newComment = new Comment({
       text,
       author: userId,
       article: articleId,
     });
     await newComment.save();
-
-    // 3. Add the new comment's ID to the article's comments array
-    article.comments.push(newComment._id);
-    await article.save();
-
-    // 4. Populate the author details before returning for a rich response
-    newComment = await newComment.populate({
-      path: "author",
-      select: "name avatarUrl",
+    // Add the comment reference & increment the total count in one operation.
+    await Article.findByIdAndUpdate(articleId, {
+      $push: { comments: newComment._id },
+      $inc: { totalCommentCount: 1 },
     });
 
+    await newComment.populate({ path: "author", select: "name avatarUrl" });
     return newComment;
   }
 
@@ -158,43 +145,31 @@ class CommentService {
    * @returns {Promise<Comment>}
    */
   async addReplyToComment(parentCommentId, text, userId) {
-    // 1. Check if the parent comment exists
     const parentComment = await Comment.findById(parentCommentId);
-    if (!parentComment) {
-      throw new CommentNotFoundException(parentCommentId);
-    }
+    if (!parentComment) throw new CommentNotFoundException(parentCommentId);
 
-    // 2. Create the new reply (which is also a Comment document)
-    // We link it back to the original article for context.
-    let newReply = new Comment({
+    const newReply = new Comment({
       text,
       author: userId,
       article: parentComment.article,
     });
     await newReply.save();
 
-    // 3. Add the new reply's ID to the parent comment's replies array
+    // Add the reply reference to the parent comment
     parentComment.replies.push(newReply._id);
     await parentComment.save();
-
-    // 4. Populate the author details for a rich response
-    newReply = await newReply.populate({
-      path: "author",
-      select: "name avatarUrl",
+    await Article.findByIdAndUpdate(parentComment.article, {
+      $inc: { totalCommentCount: 1 },
     });
 
+    await newReply.populate({ path: "author", select: "name avatarUrl" });
     return newReply;
   }
   async deleteComment(commentId, user) {
-    console.log("logging from service id is:", commentId);
-
-    // 1. Find the target comment first to ensure it exists and for authorization.
     const commentToDelete = await Comment.findById(commentId).populate(
       "author"
     );
-    if (!commentToDelete) {
-      throw new CommentNotFoundException(commentId);
-    }
+    if (!commentToDelete) throw new CommentNotFoundException(commentId);
 
     // 2. Authorization check (only the author or an admin can delete).
     if (
@@ -206,26 +181,35 @@ class CommentService {
         "You do not have permission to delete this comment."
       );
     }
+    const articleId = commentToDelete.article;
+    // 1. Find all IDs in the deletion branch (the comment + all its replies)
+    const idsToDelete = await _getReplyIds(commentId);
+    const deletedCount = idsToDelete.length;
 
-    // 3. Atomically remove the reference to this comment from ANY document that might hold it.
-    //    We use Promise.all to run these two cleanup operations in parallel for efficiency.
+    // 2. Perform the actual deletion from the Comments collection
+    if (deletedCount > 0) {
+      await Comment.deleteMany({ _id: { $in: idsToDelete } });
+    }
+
+    // 3. Perform a single, efficient decrement on the Article's count
+    if (deletedCount > 0) {
+      await Article.findByIdAndUpdate(articleId, {
+        $inc: { totalCommentCount: -deletedCount },
+      });
+    }
+
+    // 4. Clean up references from any parent document
     await Promise.all([
-      // A) Try to remove it from any parent comment's `replies` array.
       Comment.updateOne(
-        { replies: commentToDelete._id },
-        { $pull: { replies: commentToDelete._id } }
+        { replies: commentId },
+        { $pull: { replies: commentId } }
       ),
-      // B) Try to remove it from any article's `comments` array.
       Article.updateOne(
-        { comments: commentToDelete._id },
-        { $pull: { comments: commentToDelete._id } }
+        { comments: commentId },
+        { $pull: { comments: commentId } }
       ),
     ]);
 
-    // 4. Start the recursive deletion process to clean up the comment and all its children.
-    await _deleteCommentAndChildren(commentId);
-
-    // 5. Return the document that was deleted.
     return commentToDelete;
   }
 }

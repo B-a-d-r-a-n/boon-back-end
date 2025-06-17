@@ -1,63 +1,57 @@
-// utils/apiFeatures.mjs
+import User from "../models/user.model.mjs";
+
 class APIFeatures {
-  /**
-   * @param {mongoose.Query} query - The Mongoose query object (e.g., Model.find())
-   * @param {object} queryString - The query string from the request (req.query)
-   * @param {mongoose.Model} model - The Mongoose model being queried (optional, useful for schema checks)
-   */
   constructor(query, queryString, model = null) {
-    this.query = query; // Mongoose query object
-    this.queryString = queryString; // e.g., req.query
-    this.model = model; // Mongoose model (optional)
+    this.query = query;
+    this.queryString = queryString;
+    this.model = model;
+    this.pagination = {};
   }
 
-  filter(user = null) {
-    // 1A) Basic Filtering (excluding special fields)
+  filter() {
+    // 1. Create a shallow copy of the query string.
     const queryObj = { ...this.queryString };
-    const excludedFields = ["page", "sort", "limit", "fields", "search"];
+
+    // 2. Define fields that are for other methods, not for filtering the database.
+    const excludedFields = ["page", "sort", "limit", "fields", "q"];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    // 1B) Advanced Filtering (gte, gt, lte, lt, ne, in, nin)
+    // 3. Handle advanced filtering (gte, gt, lte, lt)
+    // This part is for queries like ?price[gte]=50
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(
-      /\b(gte|gt|lte|lt|ne|in|nin)\b/g,
-      (match) => `$${match}`
-    );
-    const parsedQueryFilters = JSON.parse(queryStr);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    // Apply user-specific filtering if a user is provided and the model has 'createdBy'
-    if (
-      user &&
-      user.role !== "admin" &&
-      this.model &&
-      this.model.schema.paths.createdBy
-    ) {
-      parsedQueryFilters.createdBy = user._id;
-    }
+    // 4. Apply the filter to the Mongoose query object.
+    // The result of `JSON.parse(queryStr)` will be an object like:
+    // { author: 'some-user-id', category: 'some-category-id' }
+    // Mongoose's .find() method handles this perfectly.
+    this.query = this.query.find(JSON.parse(queryStr));
 
-    this.query = this.query.find(parsedQueryFilters);
-    return this; // To allow chaining
+    return this;
   }
+  /**
+   * UPDATED: Renamed from 'search' to 'searchText' for clarity.
+   * Now uses the `q` query parameter.
+   */
+  async searchText() {
+    if (this.queryString.q) {
+      const searchQuery = this.queryString.q;
 
-  search() {
-    if (this.queryString.search && this.model) {
-      // Ensure you have a $text index on the fields you want to search in your model schema
-      // Example: bookSchema.index({ title: 'text', author: 'text' });
-      const searchFields = Object.keys(this.model.schema.paths).filter(
-        (path) => this.model.schema.paths[path].instance === "String"
-      );
-      // More targeted search:
-      // const searchableFields = ['title', 'author']; // Define in model or pass in
-      // if (this.model.schema.path('$text')) { // Check if $text index exists
+      // Now that `User` is imported, this line will work correctly.
+      const matchingAuthors = await User.find({
+        name: { $regex: searchQuery, $options: "i" },
+      }).select("_id");
 
-      if (!this.model.schema.get("textIndex")) {
-        console.warn(
-          `WARN: Text search initiated for model ${this.model.modelName} without a $text index. Search might be inefficient or not work as expected.`
-        );
-      }
-      this.query = this.query.find({
-        $text: { $search: this.queryString.search },
-      });
+      const authorIds = matchingAuthors.map((author) => author._id);
+
+      const searchCriteria = {
+        $or: [
+          { $text: { $search: searchQuery } },
+          { author: { $in: authorIds } },
+        ],
+      };
+
+      this.query = this.query.find(searchCriteria);
     }
     return this;
   }
@@ -66,11 +60,14 @@ class APIFeatures {
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(",").join(" ");
       this.query = this.query.sort(sortBy);
-    } else if (this.model && this.model.schema.paths.createdAt) {
-      this.query = this.query.sort("-createdAt"); // Default sort
     } else {
-      // Add a default sort if createdAt doesn't exist, e.g., by _id or a specific field
-      // this.query = this.query.sort('_id');
+      // For text searches, sorting by text score is often best.
+      // Otherwise, default to createdAt.
+      if (this.queryString.q) {
+        this.query = this.query.sort({ score: { $meta: "textScore" } });
+      } else {
+        this.query = this.query.sort("-createdAt");
+      }
     }
     return this;
   }
@@ -80,7 +77,8 @@ class APIFeatures {
       const fields = this.queryString.fields.split(",").join(" ");
       this.query = this.query.select(fields);
     } else {
-      this.query = this.query.select("-__v"); // Exclude __v by default
+      // For list views, always exclude the large `content` field.
+      this.query = this.query.select("-__v -content");
     }
     return this;
   }
@@ -89,28 +87,14 @@ class APIFeatures {
     const page = parseInt(this.queryString.page, 10) || 1;
     const limit = parseInt(this.queryString.limit, 10) || 10;
     const skip = (page - 1) * limit;
-
     this.query = this.query.skip(skip).limit(limit);
-    // We store these for later use in sending response metadata
     this.pagination = { page, limit };
     return this;
   }
 
   populate(populateOptions) {
     if (populateOptions) {
-      if (Array.isArray(populateOptions)) {
-        populateOptions.forEach((opt) => {
-          this.query = this.query.populate(opt);
-        });
-      } else {
-        this.query = this.query.populate(populateOptions);
-      }
-    } else if (this.model && this.model.schema.paths.createdBy) {
-      // Default populate for 'createdBy' if it exists
-      this.query = this.query.populate({
-        path: "createdBy",
-        select: "name email",
-      });
+      this.query = this.query.populate(populateOptions);
     }
     return this;
   }

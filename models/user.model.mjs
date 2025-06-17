@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please provide your email"],
       unique: true,
       lowercase: true,
-      // Consider adding a validator for email format
     },
     role: {
       type: String,
@@ -25,26 +24,27 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a password"],
       minlength: 8,
-      select: false, // Do not send password back in query results by default
+      select: false,
     },
     passwordConfirm: {
-      // Only used for validation, not saved
       type: String,
-      // required: [true, 'Please confirm your password'], // Only required on registration
       validate: {
-        // This only works on CREATE and SAVE!!!
         validator: function (el) {
           return el === this.password;
         },
         message: "Passwords are not the same!",
       },
     },
+
+    totalStars: {
+      type: Number,
+      default: 0,
+    },
     passwordChangedAt: Date,
-    refreshToken: String, // For storing a refresh token if needed for specific strategies
+    refreshToken: String,
   },
   { timestamps: true }
-); // Adds createdAt and updatedAt
-
+);
 // Pre-save middleware to hash password
 userSchema.pre("save", async function (next) {
   // Only run this function if password was actually modified

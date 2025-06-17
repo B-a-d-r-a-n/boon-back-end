@@ -3,7 +3,6 @@ import UserNotFoundException from "../exceptions/UserNotFoundException.mjs";
 import User from "../models/user.model.mjs";
 
 class UserService {
-  // ... other methods like findUserById ...
   async findUserById(userId) {
     const user = await User.findById(userId);
     if (!user) {

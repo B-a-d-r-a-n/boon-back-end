@@ -22,13 +22,12 @@ export const updateProfilePicture = async (req, res, next) => {
       throw new GenericException(400, "Please upload a file.");
     }
 
-    // The file path where multer saved the image
-    const filePath = `uploads/avatars/${req.file.filename}`;
+    const newAvatarUrl = req.file.path;
 
-    // req.user is available from the `authenticate` middleware
+    // req.user is from the `authenticate` middleware
     const updatedUser = await UserService.updateUserAvatar(
       req.user._id,
-      filePath
+      newAvatarUrl // Pass the full URL to the service
     );
 
     res.status(200).json({

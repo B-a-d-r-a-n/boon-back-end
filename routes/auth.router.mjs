@@ -6,8 +6,10 @@ import {
   login,
   refreshToken,
   logout,
+  getMe,
 } from "../controllers/auth.controller.mjs";
 import validate from "../middleware/validate.mjs";
+import { authenticate } from "../middleware/authenticate.mjs";
 
 const router = express.Router();
 
@@ -23,7 +25,7 @@ const router = express.Router();
 //   }
 //   next();
 // };
-
+router.get("/me", authenticate, getMe);
 router.post(
   "/register",
   [

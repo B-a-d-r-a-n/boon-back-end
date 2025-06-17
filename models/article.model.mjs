@@ -14,15 +14,28 @@ const articleSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,
+      index: true,
     },
     readTimeInMinutes: { type: Number, required: true, default: 1 },
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+    totalCommentCount: {
+      type: Number,
+      default: 0,
+    },
+    starsCount: {
+      type: Number,
+      default: 0,
+    },
+    starredBy: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
+    ],
   },
   {
     timestamps: true,
@@ -36,11 +49,6 @@ articleSchema.index(
   { title: "text", summary: "text" },
   { weights: { title: 10, summary: 5 } }
 );
-
-// The commentCount virtual property also remains the same.
-articleSchema.virtual("commentCount").get(function () {
-  return this.comments.length;
-});
 
 const Article = mongoose.model("Article", articleSchema, "articles");
 export default Article;

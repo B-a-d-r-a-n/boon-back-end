@@ -7,6 +7,7 @@ import {
 } from "../controllers/user.controller.mjs";
 import validate from "../middleware/validate.mjs";
 import { param } from "express-validator";
+import upload from "../middleware/cloudinary.mjs";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ const router = express.Router();
 router.patch(
   "/me/avatar",
   authenticate,
-  avatarUpload.single("avatar"),
+  upload.single("avatar"),
   updateProfilePicture
 );
 router.get("/:id", [
