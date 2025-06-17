@@ -81,7 +81,7 @@ app.use(
   })
 );
 
-// app.use(limiter);
+app.use(limiter);
 app.use(express.json({ limit: "500kb" }));
 app.use(express.urlencoded({ extended: true, limit: "500kb" }));
 app.use(cookieParser());
