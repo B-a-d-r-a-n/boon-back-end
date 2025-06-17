@@ -67,7 +67,20 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
-
+export const getMe = async (req, res, next) => {
+  try {
+    // `req.user` is attached by the `authenticate` middleware. We just need the ID.
+    const user = await authService.getMe(req.user.id);
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const refreshToken = async (req, res, next) => {
   try {
     // 1. Get the token from the cookie. This is the controller's job.

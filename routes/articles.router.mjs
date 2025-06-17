@@ -3,7 +3,7 @@ import express from "express";
 import { body, param, validationResult } from "express-validator";
 import GenericException from "../exceptions/GenericException.mjs";
 // import apicache from "apicache"; // Caching might need re-evaluation with user-specific data
-
+import starRouter from "./star.router.mjs";
 import {
   getAllArticles,
   getArticleById,
@@ -118,5 +118,5 @@ router.delete(
   validate,
   deleteArticle
 );
-
+router.use("/", starRouter);
 export default router;

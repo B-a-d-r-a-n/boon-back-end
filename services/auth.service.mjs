@@ -62,7 +62,13 @@ class AuthService {
       process.env.JWT_EXPIRES_IN
     );
   }
-
+  async getMe(userId) {
+    const user = await User.findById(userId).select("-password"); // Exclude password
+    if (!user) {
+      throw new UserNotFoundException(userId);
+    }
+    return user;
+  }
   createRefreshToken(user) {
     return signToken(
       user._id,

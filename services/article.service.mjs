@@ -24,29 +24,33 @@ class ArticleService {
   /**
    * REFACTORED: Retrieves articles with lean population for list view.
    */
-  async getAllArticles(queryString, user) {
-    // For counting total documents
-    const countQuery = new APIFeatures(Article.find(), queryString, Article)
-      .filter(user)
-      .search()
-      .query.getFilter();
-    const total = await Article.countDocuments(countQuery);
-
-    // For fetching paginated data
+  async getAllArticles(queryString) {
     const populateOptions = [
       { path: "author", select: "name avatarUrl" },
       { path: "category", select: "name" },
       { path: "tags", select: "name" },
     ];
 
-    const features = new APIFeatures(Article.find(), queryString, Article)
-      .filter(user)
-      .search()
-      .sort()
-      .limitFields() // Note: This will now select summary, coverImageUrl etc.
-      .paginate()
-      .populate(populateOptions);
-    features.query = features.query.select("+coverImageUrl");
+    // --- COUNTING LOGIC (needs the same fix) ---
+    const countFeatures = new APIFeatures(Article.find(), queryString);
+    countFeatures.filter(); // Run sync methods
+    await countFeatures.searchText(); // Await the async method
+    const total = await Article.countDocuments(countFeatures.query.getFilter());
+
+    // --- FETCHING DATA LOGIC ---
+    const features = new APIFeatures(Article.find(), queryString);
+
+    // 1. Chain all SYNCHRONOUS methods first.
+    features.filter();
+
+    // 2. AWAIT the single ASYNCHRONOUS method. This resolves the promise.
+    await features.searchText();
+
+    // 3. Now that the async part is done, `features` is still the instance.
+    //    Continue chaining the remaining synchronous methods.
+    features.sort().limitFields().paginate().populate(populateOptions);
+
+    // 4. Finally, await the actual Mongoose query execution.
     const articles = await features.query;
 
     return { articles, total, pagination: features.pagination };
