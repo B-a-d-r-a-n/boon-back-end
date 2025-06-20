@@ -1,4 +1,3 @@
-// routes/auth.router.mjs
 import express from "express";
 import { body, param, validationResult } from "express-validator";
 import {
@@ -10,21 +9,7 @@ import {
 } from "../controllers/auth.controller.mjs";
 import validate from "../middleware/validate.mjs";
 import { authenticate } from "../middleware/authenticate.mjs";
-
 const router = express.Router();
-
-// Validator middleware (similar to your books router)
-// const validate = (req, res, next) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     const errorMessages = errors
-//       .array()
-//       .map((err) => err.msg)
-//       .join(", ");
-//     throw new GenericException(400, errorMessages);
-//   }
-//   next();
-// };
 router.get("/me", authenticate, getMe);
 router.post(
   "/register",
@@ -43,13 +28,10 @@ router.post(
       }
       return true;
     }),
-    // Optionally allow 'role' for admin creation by another admin, or during seeding
-    // body('role').optional().isIn(['user', 'admin']).withMessage('Invalid role'),
   ],
   validate,
   register
 );
-
 router.post(
   "/login",
   [
@@ -62,8 +44,6 @@ router.post(
   validate,
   login
 );
-
 router.post("/refresh-token", refreshToken);
-router.post("/logout", logout); // Consider making it GET if no body is needed and it's idempotent
-
+router.post("/logout", logout); 
 export default router;

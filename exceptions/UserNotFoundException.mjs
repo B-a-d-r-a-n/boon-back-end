@@ -4,5 +4,4 @@ class UserNotFoundException extends NotFoundException {
     super(`User with id ${id} wasn't found`);
   }
 }
-
 export default UserNotFoundException;

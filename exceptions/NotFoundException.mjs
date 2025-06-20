@@ -4,5 +4,4 @@ class NotFoundException extends Error {
     this.status = 404;
   }
 }
-
 export default NotFoundException;

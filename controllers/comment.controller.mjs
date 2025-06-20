@@ -1,13 +1,9 @@
-// src/controllers/comment.controller.mjs
 import CommentService from "../services/comment.service.mjs";
-
 export const getCommentsByArticle = async (req, res, next) => {
   try {
     const { articleId } = req.params;
     const { comments, total, pagination } =
       await CommentService.getCommentsForArticle(articleId, req.query);
-
-    // Format the response to match your standard paginated response structure
     res.status(200).json({
       pagination: {
         currentPage: pagination.page,
@@ -23,19 +19,16 @@ export const getCommentsByArticle = async (req, res, next) => {
     next(error);
   }
 };
-
 export const updateCommentController = async (req, res, next) => {
   try {
     const { commentId } = req.params;
     const { text } = req.body;
     const user = req.user;
-
     const updatedComment = await CommentService.updateComment(
       commentId,
       text,
       user
     );
-
     res.status(200).json({
       status: "success",
       data: {
@@ -50,14 +43,12 @@ export const postComment = async (req, res, next) => {
   try {
     const { articleId } = req.params;
     const { text } = req.body;
-    const userId = req.user._id; // from `authenticate` middleware
-
+    const userId = req.user._id; 
     const newComment = await CommentService.addCommentToArticle(
       articleId,
       text,
       userId
     );
-
     res.status(201).json({
       status: "success",
       data: {
@@ -68,19 +59,16 @@ export const postComment = async (req, res, next) => {
     next(error);
   }
 };
-
 export const postReply = async (req, res, next) => {
   try {
     const { commentId } = req.params;
     const { text } = req.body;
-    const userId = req.user._id; // from `authenticate` middleware
-
+    const userId = req.user._id; 
     const newReply = await CommentService.addReplyToComment(
       commentId,
       text,
       userId
     );
-
     res.status(201).json({
       status: "success",
       data: {
@@ -91,12 +79,10 @@ export const postReply = async (req, res, next) => {
     next(error);
   }
 };
-
 export const deleteComment = async (req, res, next) => {
   try {
     const id = req.params.commentId;
     console.log("logging from controller id is:", id);
-
     const deletedComment = await CommentService.deleteComment(id, req.user);
     res.status(200).json(deletedComment);
   } catch (error) {

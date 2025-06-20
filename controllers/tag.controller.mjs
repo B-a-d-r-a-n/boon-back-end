@@ -1,5 +1,4 @@
 import tagService from "../services/tag.service.mjs";
-
 export const getAllTags = async (req, res, next) => {
   try {
     const tags = await tagService.getAllTags();
@@ -12,7 +11,6 @@ export const getAllTags = async (req, res, next) => {
     next(error);
   }
 };
-
 export const createTag = async (req, res, next) => {
   try {
     const { name } = req.body;

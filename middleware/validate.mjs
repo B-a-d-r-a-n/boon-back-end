@@ -1,6 +1,5 @@
 import { validationResult } from "express-validator";
 import GenericException from "../exceptions/GenericException.mjs";
-
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
