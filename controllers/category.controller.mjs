@@ -1,5 +1,4 @@
 import categoryService from "../services/category.service.mjs";
-
 export const getAllCategories = async (req, res, next) => {
   try {
     const categories = await categoryService.getAllCategories();

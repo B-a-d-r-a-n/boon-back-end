@@ -4,5 +4,4 @@ class GenericException extends Error {
     this.status = status;
   }
 }
-
 export default GenericException;

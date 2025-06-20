@@ -8,15 +8,7 @@ import {
 import validate from "../middleware/validate.mjs";
 import { param } from "express-validator";
 import upload from "../middleware/cloudinary.mjs";
-
 const router = express.Router();
-
-// All routes in this file are for an authenticated user
-// router.use(authenticate);
-
-// PATCH /api/v1/users/me/avatar
-// 1. Authenticate user
-// 2. Use multer to handle a single file upload from a form field named 'avatar'
 router.patch(
   "/me/avatar",
   authenticate,

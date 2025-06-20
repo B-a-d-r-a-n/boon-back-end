@@ -1,23 +1,17 @@
-// middleware/avatarUpload.mjs
 import multer from "multer";
 import path from "path";
 import GenericException from "../exceptions/GenericException.mjs";
-
 const storage = multer.diskStorage({
-  // Specific Destination
   destination: (req, file, cb) => {
     cb(null, "uploads/avatars/");
   },
-  // Specific Filename
   filename: (req, file, cb) => {
-    // req.user is available because the `authenticate` middleware runs first
     const uniqueSuffix = `user-${req.user._id}-${Date.now()}${path.extname(
       file.originalname
     )}`;
     cb(null, uniqueSuffix);
   },
 });
-
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype.startsWith("image/jpeg") ||
@@ -34,11 +28,9 @@ const fileFilter = (req, file, cb) => {
     );
   }
 };
-
 const avatarUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 1024 * 1024 * 2 }, // Stricter 2MB limit for avatars
+  limits: { fileSize: 1024 * 1024 * 2 }, 
 });
-
 export default avatarUpload;

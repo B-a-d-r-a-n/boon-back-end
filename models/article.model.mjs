@@ -1,15 +1,10 @@
 import mongoose from "mongoose";
-
 const articleSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     summary: { type: String, required: true },
     content: { type: String, required: true },
-
-    // --- THIS IS THE CHANGE ---
-    // We now store the full URL from Cloudinary directly.
     coverImageUrl: { type: String, required: false },
-
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -43,12 +38,9 @@ const articleSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-
-// The text index remains the same and is good.
 articleSchema.index(
   { title: "text", summary: "text" },
   { weights: { title: 10, summary: 5 } }
 );
-
 const Article = mongoose.model("Article", articleSchema, "articles");
 export default Article;

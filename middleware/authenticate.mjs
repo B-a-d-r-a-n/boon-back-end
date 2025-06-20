@@ -1,22 +1,17 @@
-// middleware/authenticate.mjs
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.mjs";
-import GenericException from "../exceptions/GenericException.mjs"; // Or UnauthorizedException
-
+import GenericException from "../exceptions/GenericException.mjs"; 
 export const authenticate = async (req, res, next) => {
   try {
     let token;
-    // 1) Getting token and check if it's there
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
     } else if (req.cookies.jwt) {
-      // Alternative: check for token in cookie
       token = req.cookies.jwt;
     }
-
     if (!token) {
       return next(
         new GenericException(
@@ -25,11 +20,7 @@ export const authenticate = async (req, res, next) => {
         )
       );
     }
-
-    // 2) Verification token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Promisify or handle callback if not using sync
-
-    // 3) Check if user still exists
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
       return next(
@@ -39,8 +30,6 @@ export const authenticate = async (req, res, next) => {
         )
       );
     }
-
-    // 4) Check if user changed password after the token was issued
     if (currentUser.changedPasswordAfter(decoded.iat)) {
       return next(
         new GenericException(
@@ -49,10 +38,8 @@ export const authenticate = async (req, res, next) => {
         )
       );
     }
-
-    // GRANT ACCESS TO PROTECTED ROUTE
-    req.user = currentUser; // Attach user to the request object
-    res.locals.user = currentUser; // Also make available in templates if using SSR
+    req.user = currentUser; 
+    res.locals.user = currentUser; 
     next();
   } catch (err) {
     if (err.name === "JsonWebTokenError") {
