@@ -1,23 +1,15 @@
 {
-  "rewrites": [
-    {
-      "source": "/sitemap.xml",
-      "destination": "https://bloggy-beta-seven.vercel.app/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/app.mjs"
-    }
-  ],
   "version": 2,
   "builds": [
     {
       "src": "./app.mjs",
       "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/app.mjs"
     }
   ]
 }
