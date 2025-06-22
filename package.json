@@ -16,8 +16,8 @@
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
     "apicache": "^1.6.3",
+    "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
-    "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -29,7 +29,6 @@
     "mongoose": "^8.15.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
-    "multer-storage-cloudinary": "^4.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0"
@@ -37,7 +36,7 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "cross-env": "^7.0.3",
-    "form-data": "^4.0.2",
+    "form-data": "^4.0.3",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.1.4",
     "supertest": "^7.1.1"
