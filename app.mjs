@@ -23,8 +23,10 @@ import "./models/tag.model.mjs";
 import "./models/comment.model.mjs";
 import "./models/article.model.mjs";
 import swaggerSpec from "./swaggerDef.mjs";
+
 const app = express();
 dotenv.config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const port = process.env.PORT || 3000;
@@ -35,14 +37,17 @@ const limiter = rateLimit({
   max: 1000,
   message: "Blocked, try again after 15 minutes",
 });
+
 const frontendUrl = process.env.FrontEnd_url;
 const allowedOrigins = [frontendUrl];
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginOpenerPolicy: false,
   })
 );
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -57,15 +62,47 @@ app.use(
     credentials: true, // essential for sending cookies
   })
 );
+
 app.use(limiter);
 app.use(express.json({ limit: "500kb" }));
 app.use(express.urlencoded({ extended: true, limit: "500kb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/", sitemapRouter);
-// Routers
 
+// MIME type middleware
+app.use((req, res, next) => {
+  // Set proper MIME types for Swagger UI assets
+  if (req.path.includes("swagger-ui") && req.path.endsWith(".js")) {
+    res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+  } else if (req.path.includes("swagger-ui") && req.path.endsWith(".css")) {
+    res.setHeader("Content-Type", "text/css; charset=utf-8");
+  } else if (req.path.includes("api-docs") && req.path.endsWith(".json")) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+  }
+  next();
+});
+
+// Swagger docs
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "API Documentation",
+  })
+);
+
+// Serve swagger JSON separately
+app.get("/swagger.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
+
+// Sitemap router
+app.use("/", sitemapRouter);
+
+// API Routers
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/articles", articlesRouter);
 app.use("/api/v1/comments", commentsRouter);
@@ -73,31 +110,23 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/tags", tagRouter);
 
-// swagger docs
-app.use((req, res, next) => {
-  // Set proper MIME types for Swagger UI assets
-  if (req.path.includes("swagger-ui") && req.path.endsWith(".js")) {
-    res.setHeader("Content-Type", "application/javascript; charset=utf-8");
-  } else if (req.path.includes("swagger-ui") && req.path.endsWith(".css")) {
-    res.setHeader("Content-Type", "text/css; charset=utf-8");
-  } else if (req.path.endsWith(".json")) {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-  }
-  next();
-});
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Health check
 app.get("/health", (req, res) => res.status(200).send("OK"));
 
 // Exceptions middleware
 app.use(customExceptionHandler);
+
 connectDB()
   .then(() => {
     const server = app.listen(port, () => {
       console.log(
         `Server running on port ${port} in ${process.env.NODE_ENV} mode`
       );
+      console.log(
+        `Swagger docs available at: http://localhost:${port}/api-docs`
+      );
     });
+
     process.on("SIGTERM", () => {
       console.log("SIGTERM received. Shutting down.");
       server.close(() => {
@@ -109,10 +138,12 @@ connectDB()
     console.error("MongoDB connection failed:", err.message);
     process.exit(1);
   });
+
 process.on("uncaughtException", (err) => {
   console.error("unhandled exceptions", err);
   process.exit(1);
 });
+
 process.on("unhandledRejection", (err) => {
   console.error("unhandled promise rejection", err);
   process.exit(1);
