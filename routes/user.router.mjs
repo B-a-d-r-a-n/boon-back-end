@@ -7,7 +7,8 @@ import {
 } from "../controllers/user.controller.mjs";
 import validate from "../middleware/validate.mjs";
 import { param } from "express-validator";
-import upload from "../middleware/cloudinary.mjs";
+import upload from "../middleware/multer.mjs";
+
 const router = express.Router();
 router.patch(
   "/me/avatar",

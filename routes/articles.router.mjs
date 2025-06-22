@@ -10,8 +10,8 @@ import {
   deleteArticle,
 } from "../controllers/article.controller.mjs";
 import mongoose from "mongoose";
-import { authenticate } from "../middleware/authenticate.mjs"; 
-import { authorize } from "../middleware/authorize.mjs"; 
+import { authenticate } from "../middleware/authenticate.mjs";
+import { authorize } from "../middleware/authorize.mjs";
 import coverImageUpload from "../middleware/coverImageUpload.mjs";
 import {
   deleteComment,
@@ -19,7 +19,8 @@ import {
   postComment,
   postReply,
 } from "../controllers/comment.controller.mjs";
-import upload from "../middleware/cloudinary.mjs";
+import upload from "../middleware/multer.mjs";
+
 const router = express.Router();
 const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -47,7 +48,7 @@ router.get(
 );
 router.post(
   "/:articleId/comments",
-  authenticate, 
+  authenticate,
   [
     param("articleId").isMongoId().withMessage("Invalid article ID."),
     body("text").notEmpty().withMessage("Comment text cannot be empty."),
@@ -57,7 +58,7 @@ router.post(
 );
 router.post(
   "/",
-  authenticate, 
+  authenticate,
   upload.single("coverImage"),
   [
     body("title").notEmpty().withMessage("Title is required").trim(),
@@ -71,7 +72,7 @@ router.post(
 );
 router.patch(
   "/:id",
-  authenticate, 
+  authenticate,
   upload.single("coverImage"),
   [
     param("id").isMongoId().withMessage("Invalid Article ID"),
@@ -79,7 +80,7 @@ router.patch(
     body("summary").optional().notEmpty().trim(),
   ],
   validate,
-  updateArticle 
+  updateArticle
 );
 router.delete(
   "/:id",
