@@ -39,7 +39,9 @@ const limiter = rateLimit({
 });
 
 const frontendUrl = process.env.FrontEnd_url;
-const allowedOrigins = [frontendUrl];
+
+
+const allowedOrigins = [frontendUrl,"https://bloggy-api.vercel.app"];
 
 app.use(
   helmet({
