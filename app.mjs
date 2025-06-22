@@ -36,7 +36,7 @@ const limiter = rateLimit({
   message: "Blocked, try again after 15 minutes",
 });
 const frontendUrl = process.env.FrontEnd_url;
-const allowedOrigins = [frontendUrl];
+const allowedOrigins = [frontendUrl,"https://bloggy-api.vercel.app"];
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
