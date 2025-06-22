@@ -16,11 +16,13 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./db/config.db.mjs";
+import swaggerUi from "swagger-ui-express";
 import "./models/user.model.mjs";
 import "./models/category.model.mjs";
 import "./models/tag.model.mjs";
 import "./models/comment.model.mjs";
 import "./models/article.model.mjs";
+import swaggerSpec from "./swaggerDef.mjs";
 const app = express();
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -70,6 +72,9 @@ app.use("/api/v1/comments", commentsRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/tags", tagRouter);
+
+// swagger docs
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Health check
 app.get("/health", (req, res) => res.status(200).send("OK"));
 
