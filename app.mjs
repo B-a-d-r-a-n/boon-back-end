@@ -74,6 +74,17 @@ app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/tags", tagRouter);
 
 // swagger docs
+app.use((req, res, next) => {
+  // Set proper MIME types for Swagger UI assets
+  if (req.path.includes("swagger-ui") && req.path.endsWith(".js")) {
+    res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+  } else if (req.path.includes("swagger-ui") && req.path.endsWith(".css")) {
+    res.setHeader("Content-Type", "text/css; charset=utf-8");
+  } else if (req.path.endsWith(".json")) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+  }
+  next();
+});
 app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Health check
 app.get("/health", (req, res) => res.status(200).send("OK"));
