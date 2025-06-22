@@ -8,6 +8,7 @@ import userRouter from "./routes/user.router.mjs";
 import commentsRouter from "./routes/comments.router.mjs";
 import categoryRouter from "./routes/category.router.mjs";
 import tagRouter from "./routes/tag.router.mjs";
+import sitemapRouter from "./routes/sitemap.router.mjs";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
@@ -60,7 +61,7 @@ app.use(express.urlencoded({ extended: true, limit: "500kb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+app.use("/", sitemapRouter);
 // Routers
 
 app.use("/api/v1/auth", authRouter);

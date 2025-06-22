@@ -1,4 +1,18 @@
 {
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://bloggy-beta-seven.vercel.app/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "version": 2,
   "builds": [
     {
