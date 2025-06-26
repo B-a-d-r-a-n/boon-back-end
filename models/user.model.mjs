@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import bcrypt, { genSalt } from "bcryptjs";
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -33,24 +33,51 @@ const userSchema = new mongoose.Schema(
         message: "Passwords are not the same!",
       },
     },
+
     totalStars: {
       type: Number,
       default: 0,
     },
+
     passwordChangedAt: Date,
     refreshToken: String,
+    paymentMethods: {
+      type: String,
+      optional: true,
+    },
+    paymentIntent: {
+      type: String,
+      optional: true,
+    },
+    starredArticles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Article",
+      },
+    ],
+    userComments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
+    address: {
+      type: String,
+      optional: true,
+    },
   },
   { timestamps: true }
 );
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 12);
+  const salt = await genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
   this.passwordConfirm = undefined;
   next();
 });
 userSchema.pre("save", function (next) {
   if (!this.isModified("password") || this.isNew) return next();
-  this.passwordChangedAt = Date.now() - 1000; 
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 userSchema.methods.correctPassword = async function (

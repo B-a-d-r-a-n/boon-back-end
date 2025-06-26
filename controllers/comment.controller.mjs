@@ -1,4 +1,24 @@
 import CommentService from "../services/comment.service.mjs";
+export const getAllComments = async (req, res, next) => {
+  try {
+    const { comments, total, pagination } = await CommentService.getAllComments(
+      req.query
+    );
+    res.status(200).json({
+      pagination: {
+        currentPage: pagination.page,
+        itemsPerPage: pagination.limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / pagination.limit),
+        hasNextPage: pagination.page * pagination.limit < total,
+        hasPrevPage: pagination.page > 1,
+      },
+      data: comments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const getCommentsByArticle = async (req, res, next) => {
   try {
     const { articleId } = req.params;
@@ -43,7 +63,7 @@ export const postComment = async (req, res, next) => {
   try {
     const { articleId } = req.params;
     const { text } = req.body;
-    const userId = req.user._id; 
+    const userId = req.user._id;
     const newComment = await CommentService.addCommentToArticle(
       articleId,
       text,
@@ -63,7 +83,7 @@ export const postReply = async (req, res, next) => {
   try {
     const { commentId } = req.params;
     const { text } = req.body;
-    const userId = req.user._id; 
+    const userId = req.user._id;
     const newReply = await CommentService.addReplyToComment(
       commentId,
       text,
