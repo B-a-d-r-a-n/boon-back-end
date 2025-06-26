@@ -16,9 +16,11 @@ class StarService {
     const isAlreadyStarred = article.starredBy.includes(userId);
     let updateOperation;
     let authorStarUpdate;
+    let userStarredArticlesUpdate;
     let newCount;
     let starred;
     if (isAlreadyStarred) {
+      userStarredArticlesUpdate = { $pull: { starredArticles: articleId } };
       updateOperation = {
         $pull: { starredBy: userId },
         $inc: { starsCount: -1 },
@@ -27,8 +29,9 @@ class StarService {
       newCount = article.starsCount - 1;
       starred = false;
     } else {
+      userStarredArticlesUpdate = { $addToSet: { starredArticles: articleId } };
       updateOperation = {
-        $addToSet: { starredBy: userId }, 
+        $addToSet: { starredBy: userId },
         $inc: { starsCount: 1 },
       };
       authorStarUpdate = { $inc: { totalStars: 1 } };
@@ -38,6 +41,7 @@ class StarService {
     await Promise.all([
       Article.findByIdAndUpdate(articleId, updateOperation),
       User.findByIdAndUpdate(article.author, authorStarUpdate),
+      User.findByIdAndUpdate(userId, userStarredArticlesUpdate),
     ]);
     return { starred, newCount };
   }

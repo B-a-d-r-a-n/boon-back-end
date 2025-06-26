@@ -22,7 +22,7 @@ import "./models/category.model.mjs";
 import "./models/tag.model.mjs";
 import "./models/comment.model.mjs";
 import "./models/article.model.mjs";
-import swaggerSpec from "./swaggerDef.mjs";
+// import swaggerSpec from "./swaggerDef.mjs";
 
 const app = express();
 dotenv.config();
@@ -40,8 +40,7 @@ const limiter = rateLimit({
 
 const frontendUrl = process.env.FrontEnd_url;
 
-
-const allowedOrigins = [frontendUrl,"https://bloggy-api.vercel.app"];
+const allowedOrigins = [frontendUrl, "https://bloggy-api.vercel.app"];
 
 app.use(
   helmet({
@@ -86,20 +85,20 @@ app.use((req, res, next) => {
 });
 
 // Swagger docs
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, {
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "API Documentation",
-  })
-);
+// app.use(
+//   "/api-docs",
+//   swaggerUi.serve,
+//   swaggerUi.setup(swaggerSpec, {
+//     customCss: ".swagger-ui .topbar { display: none }",
+//     customSiteTitle: "API Documentation",
+//   })
+// );
 
 // Serve swagger JSON separately
-app.get("/swagger.json", (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.send(swaggerSpec);
-});
+// app.get("/swagger.json", (req, res) => {
+//   res.setHeader("Content-Type", "application/json");
+//   res.send(swaggerSpec);
+// });
 
 // Sitemap router
 app.use("/", sitemapRouter);
@@ -108,7 +107,7 @@ app.use("/", sitemapRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/articles", articlesRouter);
 app.use("/api/v1/comments", commentsRouter);
-app.use("/api/v1/user", userRouter);
+app.use("/api/v1/users", userRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/tags", tagRouter);
 

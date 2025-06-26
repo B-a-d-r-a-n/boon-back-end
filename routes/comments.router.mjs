@@ -3,12 +3,12 @@ import { body, param } from "express-validator";
 import { authenticate } from "../middleware/authenticate.mjs";
 import {
   deleteComment,
+  getAllComments,
   postReply,
   updateCommentController,
 } from "../controllers/comment.controller.mjs";
 import validate from "../middleware/validate.mjs";
 const router = express.Router();
-router.use(authenticate);
 
 /**
  * @swagger
@@ -16,6 +16,7 @@ router.use(authenticate);
  *   name: Comments
  *   description: Managing comments and replies
  */
+router.get("/", getAllComments);
 
 /**
  * @swagger
@@ -44,6 +45,7 @@ router.use(authenticate);
  */
 router.post(
   "/:commentId/replies",
+  authenticate,
   [
     param("commentId").isMongoId().withMessage("Invalid comment ID."),
     body("text").notEmpty().withMessage("Comment text cannot be empty."),
@@ -79,6 +81,7 @@ router.post(
  */
 router.patch(
   "/:commentId",
+  authenticate,
   [
     param("commentId").isMongoId().withMessage("Invalid comment ID."),
     body("text").notEmpty().withMessage("Comment text cannot be empty."),
@@ -106,6 +109,7 @@ router.patch(
  */
 router.delete(
   "/:commentId",
+  authenticate,
   [param("commentId").isMongoId().withMessage("Invalid Comment ID")],
   validate,
   deleteComment

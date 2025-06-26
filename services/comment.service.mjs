@@ -4,6 +4,7 @@ import GenericException from "../exceptions/GenericException.mjs";
 import ArticleNotFoundException from "../exceptions/ArticleNotFoundException.mjs";
 import CommentNotFoundException from "../exceptions/CommentNotFoundException.mjs";
 import APIFeatures from "../utils/apiFeatures.mjs";
+import User from "../models/user.model.mjs";
 async function _getReplyIds(commentId) {
   const comment = await Comment.findById(commentId).select("replies").lean();
   if (!comment) return [];
@@ -17,6 +18,18 @@ async function _getReplyIds(commentId) {
   return ids;
 }
 class CommentService {
+  async getAllComments(queryString) {
+    const countFeatures = new APIFeatures(Comment.find(), queryString);
+    countFeatures.filter();
+    await countFeatures.searchText();
+    const total = await Comment.countDocuments(countFeatures.query.getFilter());
+    const features = new APIFeatures(Comment.find(), queryString);
+    features.filter();
+    await features.searchText();
+    features.sort().limitFields().paginate();
+    const comments = await features.query;
+    return { comments, total, pagination: features.pagination };
+  }
   async getCommentsForArticle(articleId, queryString) {
     const articleExists = await Article.exists({ _id: articleId });
     if (!articleExists) {
@@ -35,9 +48,7 @@ class CommentService {
             { path: "author", select: "name avatarUrl" },
             {
               path: "replies",
-              populate: [
-                { path: "author", select: "name avatarUrl" },
-              ],
+              populate: [{ path: "author", select: "name avatarUrl" }],
             },
           ],
         },
@@ -47,7 +58,7 @@ class CommentService {
     const features = new APIFeatures(baseQuery, queryString).sort().paginate();
     features.query = features.query.populate([
       { path: "author", select: "name avatarUrl" },
-      deepPopulate, 
+      deepPopulate,
     ]);
     const comments = await features.query;
     const total = topLevelCommentIds.length;
@@ -82,6 +93,9 @@ class CommentService {
       $push: { comments: newComment._id },
       $inc: { totalCommentCount: 1 },
     });
+    await User.findByIdAndUpdate(userId, {
+      $push: { userComments: newComment._id },
+    });
     await newComment.populate({ path: "author", select: "name avatarUrl" });
     return newComment;
   }
@@ -99,6 +113,9 @@ class CommentService {
     await Article.findByIdAndUpdate(parentComment.article, {
       $inc: { totalCommentCount: 1 },
     });
+    await User.findByIdAndUpdate(userId, {
+      $push: { userComments: newReply._id },
+    });
     await newReply.populate({ path: "author", select: "name avatarUrl" });
     return newReply;
   }
@@ -106,6 +123,21 @@ class CommentService {
     const commentToDelete = await Comment.findById(commentId).populate(
       "author"
     );
+    if (!commentToDelete) throw new CommentNotFoundException(commentId);
+
+    if (
+      user.role !== "admin" &&
+      commentToDelete.author._id.toString() !== user._id.toString()
+    ) {
+      throw new GenericException(
+        403,
+        "You do not have permission to delete this comment."
+      );
+    }
+
+    await User.findByIdAndUpdate(commentToDelete.author._id, {
+      $pull: { userComments: commentId },
+    });
     if (!commentToDelete) throw new CommentNotFoundException(commentId);
     if (
       user.role !== "admin" &&
