@@ -1,9 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import * as AdminJSExpress from "@adminjs/express";
 import bcrypt from "bcrypt";
-import connectMongo from "connect-mongo";
 import User from "./models/user.model.mjs";
 import { customExceptionHandler } from "./middleware/customExceptionHandler.mjs";
 import authRouter from "./routes/auth.router.mjs";
@@ -26,9 +24,6 @@ import "./models/category.model.mjs";
 import "./models/tag.model.mjs";
 import "./models/comment.model.mjs";
 import "./models/article.model.mjs";
-import adminOptions from "./admin/admin.options.mjs";
-import AdminJS from "adminjs";
-import session from "express-session";
 // import swaggerSpec from "./swaggerDef.mjs";
 
 const app = express();
@@ -53,24 +48,6 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
-const MongoStore = connectMongo.create({
-  mongoUrl: process.env.MONGODB_URI,
-  collectionName: "sessions",
-});
-
-app.use(
-  session({
-    secret:
-      process.env.ADMIN_COOKIE_PASSWORD ||
-      "a-very-secret-and-long-password-for-sessions",
-    store: MongoStore,
-    resave: false,
-    saveUninitialized: false, // Don't create sessions for unauthenticated users
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-    },
-  })
-);
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -166,46 +143,6 @@ app.use((req, res, next) => {
 //   res.send(swaggerSpec);
 // });
 
-// --- 3. ADMINJS SETUP (Simplified) ---
-const admin = new AdminJS(adminOptions);
-
-// Use the simpler `buildRouter` instead of `buildAuthenticatedRouter`.
-// It will automatically use the `express-session` middleware we defined above.
-const adminRouter = AdminJSExpress.buildRouter(admin);
-
-// Mount the AdminJS router.
-app.use(admin.options.rootPath, adminRouter);
-
-// --- LOGIN ROUTE FOR ADMINJS (Separate from your API auth) ---
-// We need to create a simple, separate login route for the admin panel.
-app.post("/admin/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email }).select("+password");
-
-  if (user && user.role === "admin") {
-    const matched = await bcrypt.compare(password, user.password);
-    if (matched) {
-      // If login is successful, set the user on the session object.
-      // AdminJS will check `req.session.adminUser` to see if someone is logged in.
-      req.session.adminUser = {
-        email: user.email,
-        role: user.role,
-        // You can add other non-sensitive info here
-      };
-      // Redirect back to the admin dashboard on successful login
-      return res.redirect("/admin");
-    }
-  }
-  // If login fails, redirect back to the login page with an error message
-  return res.redirect("/admin/login?error=Invalid%20credentials");
-});
-
-// Create a logout route
-app.get("/admin/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/admin/login");
-  });
-});
 // Sitemap router
 app.use("/", sitemapRouter);
 
@@ -232,7 +169,6 @@ connectDB()
       console.log(
         `Swagger docs available at: http://localhost:${port}/api-docs`
       );
-      console.log(`AdminJS panel available at: http://localhost:${port}/admin`);
     });
 
     process.on("SIGTERM", () => {
