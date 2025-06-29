@@ -1,8 +1,9 @@
 import express from "express";
 import { authenticate } from "../middleware/authenticate.mjs";
 import {
-  getMyComments,
-  getMyStarredArticles,
+  applyForAuthor,
+  getComments,
+  getStarredArticles,
   getUserById,
   updateProfilePicture,
   updateUser,
@@ -21,13 +22,15 @@ router.patch(
 /** * @swagger * /users/me: *   patch: *     summary: Update the current user's data *     tags: [Users] *     security: *       - bearerAuth: [] *     requestBody: *       required: true *       content: *         application/json: *           schema: *             type: object *             properties: *               name: *                 type: string *               email: *                 type: string *               address: *                 type: string *     responses: *       200: *         description: User data updated successfully. Returns the updated user object. *       400: *         description: Invalid data provided. */
 router.patch("/me", authenticate, updateUser);
 /** * @swagger * /users/me/comments: *   get: *     summary: Get all comments made by the current user *     tags: [Users] *     security: *       - bearerAuth: [] *     responses: *       200: *         description: A list of comments. *         content: *           application/json: *             schema: *               type: array *               items: *                 $ref: '#/components/schemas/Comment' */
-router.get("/me/comments", authenticate, getMyComments);
+router.get("/:id/comments", authenticate, getComments);
 /** * @swagger * /users/me/starred: *   get: *     summary: Get all articles starred by the current user *     tags: [Users] *     security: *       - bearerAuth: [] *     responses: *       200: *         description: A list of starred articles. *         content: *           application/json: *             schema: *               type: array *               items: *                 $ref: '#/components/schemas/Article' */
-router.get("/me/starred-articles", authenticate, getMyStarredArticles);
+router.get("/:id/starred", authenticate, getStarredArticles);
 /** * @swagger * /users/{id}: *   get: *     summary: Get a user's public profile by ID *     tags: [Users] *     parameters: *       - in: path *         name: id *         required: true *         schema: { type: string } *         description: The ID of the user to retrieve. *     responses: *       200: *         description: The user's public profile data. *         content: *           application/json: *             schema: *               $ref: '#/components/schemas/User' *       404: *         description: User not found. */
 router.get("/:id", [
   param("id").isMongoId().withMessage("Invalid User ID"),
   validate,
   getUserById,
 ]);
+// POST /api/v1/users/me/apply-author
+router.post("/me/apply-author", authenticate, applyForAuthor);
 export default router;

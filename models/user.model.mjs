@@ -14,8 +14,17 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["reader", "author", "admin"],
+      default: "reader",
+    },
+    authorStatus: {
+      type: String,
+      enum: ["none", "pending", "approved", "rejected"],
+      default: "none",
+    },
+    authorApplicationMessage: {
+      type: String,
+      trim: true,
     },
     avatarUrl: { type: String, required: false },
     password: {

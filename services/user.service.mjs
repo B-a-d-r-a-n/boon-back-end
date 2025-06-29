@@ -30,7 +30,22 @@ class UserService {
     const comments = await features.query;
     return comments;
   }
+  async applyForAuthor(userId, message) {
+    const user = await User.findById(userId);
+    if (!user) throw new UserNotFoundException(userId);
+    if (user.authorStatus === "pending" || user.authorStatus === "approved") {
+      throw new GenericException(
+        400,
+        "You have already applied or are an author."
+      );
+    }
 
+    user.authorStatus = "pending";
+    user.authorApplicationMessage = message;
+    await user.save();
+
+    return user;
+  }
   async getStarredArticles(userId, queryString) {
     const user = await User.findById(userId).select("starredArticles").lean();
     if (!user) throw new UserNotFoundException(userId);
