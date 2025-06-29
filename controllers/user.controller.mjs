@@ -31,22 +31,29 @@ export const updateUser = async (req, res, next) => {
     next(error);
   }
 };
-
-export const getMyComments = async (req, res, next) => {
+export const applyForAuthor = async (req, res, next) => {
   try {
-    const comments = await userService.getUserComments(req.user._id, req.query);
+    const { message } = req.body;
+    const user = await userService.applyForAuthor(req.user._id, message);
+    res.status(200).json({ status: "success", data: { user } });
+  } catch (error) {
+    next(error);
+  }
+};
+export const getComments = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const comments = await userService.getUserComments(userId, req.query);
     res.status(200).json({ status: "success", data: comments });
   } catch (error) {
     next(error);
   }
 };
 
-export const getMyStarredArticles = async (req, res, next) => {
+export const getStarredArticles = async (req, res, next) => {
   try {
-    const articles = await userService.getStarredArticles(
-      req.user._id,
-      req.query
-    );
+    const userId = req.params.id;
+    const articles = await userService.getStarredArticles(userId, req.query);
     res.status(200).json({ status: "success", data: articles });
   } catch (error) {
     next(error);

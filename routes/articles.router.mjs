@@ -15,6 +15,7 @@ import {
 } from "../controllers/comment.controller.mjs";
 import upload from "../middleware/multer.mjs";
 import validate from "../middleware/validate.mjs";
+import { authorize } from "../middleware/authorize.mjs";
 
 const router = express.Router();
 /**
@@ -142,6 +143,7 @@ router.post(
 router.post(
   "/",
   authenticate,
+  // authorize("author", "admin"),
   upload.single("coverImage"),
   [
     body("title").notEmpty().withMessage("Title is required").trim(),
@@ -194,6 +196,7 @@ router.post(
 router.patch(
   "/:id",
   authenticate,
+  // authorize("author", "admin"),
   upload.single("coverImage"),
   [
     param("id").isMongoId().withMessage("Invalid Article ID"),
@@ -228,6 +231,7 @@ router.patch(
 router.delete(
   "/:id",
   authenticate,
+  // authorize("author", "admin"),
   [param("id").isMongoId().withMessage("Invalid Article ID")],
   validate,
   deleteArticle

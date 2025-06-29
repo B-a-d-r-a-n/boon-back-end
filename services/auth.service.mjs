@@ -7,17 +7,16 @@ const signToken = (id, role, secret, expiresIn) => {
 };
 class AuthService {
   async registerUser(userData) {
-    const { name, email, password, passwordConfirm } = userData; 
+    const { name, email, password, passwordConfirm } = userData;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new GenericException(409, "User with this email already exists."); 
+      throw new GenericException(409, "User with this email already exists.");
     }
     const newUser = await User.create({
       name,
       email,
       password,
       passwordConfirm,
-      role: "user", 
     });
     newUser.password = undefined;
     return newUser;
@@ -26,9 +25,9 @@ class AuthService {
     if (!email || !password) {
       throw new GenericException(400, "Please provide email and password!");
     }
-    const user = await User.findOne({ email }).select("+password"); 
+    const user = await User.findOne({ email }).select("+password");
     if (!user || !(await user.correctPassword(password, user.password))) {
-      throw new GenericException(401, "Incorrect email or password"); 
+      throw new GenericException(401, "Incorrect email or password");
     }
     const accessToken = this.createAccessToken(user);
     const refreshToken = this.createRefreshToken(user);
@@ -43,7 +42,7 @@ class AuthService {
     );
   }
   async getMe(userId) {
-    const user = await User.findById(userId).select("-password"); 
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       throw new UserNotFoundException(userId);
     }
