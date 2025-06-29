@@ -7,7 +7,8 @@
     "start": "node app.mjs",
     "dev": "nodemon app.mjs",
     "seed": "node seed.mjs",
-    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles --forceExit"
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles --forceExit",
+    "build": "npm i --omit=dev @rollup/rollup-linux-x64-gnu"
   },
   "keywords": [],
   "author": "",
@@ -52,5 +53,12 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.44.1"
+  },
+  "overrides": {
+    "rollup": {
+      "optionalDependencies": {
+        "@rollup/rollup-linux-x64-gnu": "^4.44.1"
+      }
+    }
   }
 }
