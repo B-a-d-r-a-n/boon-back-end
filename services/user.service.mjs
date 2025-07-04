@@ -1,10 +1,6 @@
 import UserNotFoundException from "../exceptions/UserNotFoundException.mjs";
+import Product from "../models/product.model.mjs";
 import User from "../models/user.model.mjs";
-import ApiFeatures from "../utils/apiFeatures.mjs";
-import Article from "../models/article.model.mjs";
-import Comment from "../models/comment.model.mjs";
-import APIFeatures from "../utils/apiFeatures.mjs";
-
 class UserService {
   async findUserById(userId) {
     const user = await User.findById(userId);
@@ -13,54 +9,44 @@ class UserService {
     }
     return user;
   }
-
-  async updateUser(userId, userData) {
-    const user = await User.findByIdAndUpdate(userId, userData, {
-      new: true,
-      runValidators: true,
+  async getMyReviews(userId) {
+    const productsWithUserReviews = await Product.find(
+      { "reviews.user": userId },
+      {
+        "reviews.$": 1,
+        name: 1,
+        slug: 1,
+        images: { $slice: 1 }, 
+      }
+    );
+    const userReviews = productsWithUserReviews.map((p) => ({
+      ...p.reviews[0].toObject(), 
+      product: {
+        _id: p._id,
+        name: p.name,
+        slug: p.slug,
+        image: p.images[0],
+      },
+    }));
+    return userReviews;
+  }
+  async updateUser(userId, updateData) {
+    const allowedUpdates = ["name", "shippingAddress"];
+    const filteredUpdateData = {};
+    Object.keys(updateData).forEach((key) => {
+      if (allowedUpdates.includes(key)) {
+        filteredUpdateData[key] = updateData[key];
+      }
     });
+    const user = await User.findByIdAndUpdate(userId, filteredUpdateData, {
+      new: true, 
+      runValidators: true, 
+    }).select("-password"); 
     if (!user) {
       throw new UserNotFoundException(userId);
     }
     return user;
   }
-  async getUserComments(userId, queryString) {
-    const query = Comment.find({ author: userId });
-    const features = new APIFeatures(query, queryString).sort().paginate();
-    const comments = await features.query;
-    return comments;
-  }
-  async applyForAuthor(userId, message) {
-    const user = await User.findById(userId);
-    if (!user) throw new UserNotFoundException(userId);
-    if (user.authorStatus === "pending" || user.authorStatus === "approved") {
-      throw new GenericException(
-        400,
-        "You have already applied or are an author."
-      );
-    }
-
-    user.authorStatus = "pending";
-    user.authorApplicationMessage = message;
-    await user.save();
-
-    return user;
-  }
-  async getStarredArticles(userId, queryString) {
-    const user = await User.findById(userId).select("starredArticles").lean();
-    if (!user) throw new UserNotFoundException(userId);
-
-    const query = Article.find({ _id: { $in: user.starredArticles } });
-    const features = new APIFeatures(query, queryString).sort().populate([
-      { path: "author", select: "name avatarUrl" },
-      { path: "category", select: "name" },
-      { path: "tags", select: "name" },
-    ]);
-
-    const articles = await features.query;
-    return articles;
-  }
-
   async updateUserAvatar(userId, avatarPath) {
     const user = await User.findByIdAndUpdate(
       userId,
@@ -68,6 +54,86 @@ class UserService {
       { new: true, runValidators: true }
     );
     return user;
+  }
+  async getWishlist(userId) {
+    const user = await User.findById(userId).populate("wishlist");
+    if (!user) throw new GenericException(404, "User not found");
+    return user.wishlist;
+  }
+  async toggleWishlistItem(userId, productId) {
+    const [user, productExists] = await Promise.all([
+      User.findById(userId),
+      Product.findById(productId),
+    ]);
+    if (!user) {
+      throw new GenericException(404, "User not found.");
+    }
+    if (!productExists) {
+      throw new GenericException(404, "Product not found.");
+    }
+    const wishlistAsStrings = user.wishlist.map((id) => id.toString());
+    const index = wishlistAsStrings.indexOf(productId);
+    if (index > -1) {
+      user.wishlist.splice(index, 1);
+    } else {
+      user.wishlist.push(productId);
+    }
+    await user.save();
+    return user;
+  }
+  async getCart(userId) {
+    const user = await User.findById(userId).populate("cart.product");
+    if (!user) throw new GenericException(404, "User not found");
+    return user.cart;
+  }
+  async addItemToCart(userId, productId, quantity) {
+    const user = await User.findById(userId);
+    const product = await Product.findById(productId);
+    if (!product) throw new GenericException(404, "Product not found");
+    if (product.stockCount < quantity)
+      throw new GenericException(400, "Not enough stock");
+    const itemIndex = user.cart.findIndex(
+      (item) => item.product.toString() === productId
+    );
+    if (itemIndex > -1) {
+      user.cart[itemIndex].quantity += quantity;
+    } else {
+      user.cart.push({ product: productId, quantity });
+    }
+    await user.save();
+    return this.getCart(userId); 
+  }
+  async updateCartItemQuantity(userId, productId, newQuantity) {
+    if (newQuantity <= 0) {
+      return this.removeItemFromCart(userId, productId);
+    }
+    const user = await User.findById(userId);
+    const productStock = await Product.findById(productId);
+    if (productStock.stockCount - newQuantity < 0) {
+      throw new GenericException(400, "Not enough stock");
+    }
+    const itemIndex = user.cart.findIndex(
+      (item) => item.product.toString() === productId
+    );
+    if (itemIndex > -1) {
+      user.cart[itemIndex].quantity = newQuantity;
+      await user.save();
+    }
+    return this.getCart(userId);
+  }
+  async removeItemFromCart(userId, productId) {
+    const user = await User.findById(userId);
+    user.cart = user.cart.filter(
+      (item) => item.product.toString() !== productId
+    );
+    await user.save();
+    return this.getCart(userId);
+  }
+  async clearCart(userId) {
+    const user = await User.findById(userId);
+    user.cart = [];
+    await user.save();
+    return user.cart;
   }
 }
 export default new UserService();

@@ -8,18 +8,31 @@ const signToken = (id, role, secret, expiresIn) => {
 class AuthService {
   async registerUser(userData) {
     const { name, email, password, passwordConfirm } = userData;
+    if (!password || passwordConfirm === undefined) {
+      throw new GenericException(
+        400,
+        "Password and confirmation are required."
+      );
+    }
+    if (password !== passwordConfirm) {
+      throw new GenericException(400, "Passwords do not match.");
+    }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new GenericException(409, "User with this email already exists.");
+      throw new GenericException(
+        409,
+        "An account with this email already exists."
+      );
     }
     const newUser = await User.create({
       name,
       email,
       password,
       passwordConfirm,
+      provider: "credentials",
     });
-    newUser.password = undefined;
-    return newUser;
+    const accessToken = this.createAccessToken(newUser);
+    return { user: newUser, accessToken };
   }
   async loginUser(email, password) {
     if (!email || !password) {
@@ -30,8 +43,27 @@ class AuthService {
       throw new GenericException(401, "Incorrect email or password");
     }
     const accessToken = this.createAccessToken(user);
-    const refreshToken = this.createRefreshToken(user);
-    return { user, accessToken, refreshToken };
+    return { user, accessToken };
+  }
+  async handleOAuthLogin(profile) {
+    const { email, name, avatarUrl, provider } = profile;
+    let user = await User.findOne({ email });
+    if (user) {
+      if (user.provider !== provider) {
+        throw new GenericException(
+          409,
+          `Account exists with a different login method.`
+        );
+      }
+      if (avatarUrl && user.avatarUrl !== avatarUrl) {
+        user.avatarUrl = avatarUrl;
+        await user.save({ validateBeforeSave: false });
+      }
+    } else {
+      user = await User.create({ name, email, avatarUrl, provider });
+    }
+    const accessToken = this.createAccessToken(user);
+    return { user, accessToken };
   }
   createAccessToken(user) {
     return signToken(
@@ -42,46 +74,14 @@ class AuthService {
     );
   }
   async getMe(userId) {
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId)
+      .select("-password -passwordConfirm")
+      .populate({ path: "wishlist", model: "Product" })
+      .populate({ path: "cart.product", model: "Product" });
     if (!user) {
       throw new UserNotFoundException(userId);
     }
     return user;
-  }
-  createRefreshToken(user) {
-    return signToken(
-      user._id,
-      user.role,
-      process.env.JWT_REFRESH_SECRET,
-      process.env.JWT_REFRESH_EXPIRES_IN
-    );
-  }
-  async verifyRefreshToken(token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-      const freshUser = await User.findById(decoded.id);
-      if (!freshUser) {
-        throw new GenericException(
-          401,
-          "User belonging to this token no longer exists."
-        );
-      }
-      if (freshUser.changedPasswordAfter(decoded.iat)) {
-        throw new GenericException(
-          401,
-          "User recently changed password! Please log in again."
-        );
-      }
-      return freshUser;
-    } catch (err) {
-      if (err.name === "TokenExpiredError") {
-        throw new GenericException(
-          401,
-          "Refresh token has expired. Please log in again."
-        );
-      }
-      throw new GenericException(401, "Invalid refresh token.");
-    }
   }
 }
 export default new AuthService();

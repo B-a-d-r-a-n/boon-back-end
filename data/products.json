@@ -1,0 +1,435 @@
+[
+  {
+    "Name": "Sony WH-1000XM5 Wireless Headphones",
+    "Description": "Industry-leading noise canceling with two processors controlling 8 microphones and Auto NC Optimizer.",
+    "Price": 399.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61ULAZmt9NL.jpg",
+    "CategoryId": 1,
+    "BrandId": 1
+  },
+  {
+    "Name": "Sony PlayStation 5 Console",
+    "Description": "Next-gen gaming console with ultra-high-speed SSD and immersive 3D audio.",
+    "Price": 499.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51051FiD9UL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 1
+  },
+  {
+    "Name": "Sony Alpha a7 IV Mirrorless Camera",
+    "Description": "Full-frame mirrorless camera with 33MP sensor and advanced autofocus.",
+    "Price": 2499.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51VIBalukaL._AC_UF894,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 1
+  },
+  {
+    "Name": "Samsung 55-Inch CRYSTAL UHD 4K TV",
+    "Description": "Breathtaking 4K Ultra HD picture quality with Google TV and Assistant.",
+    "Price": 477.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61tOjWVRaKL._UF894,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 2
+  },
+  {
+    "Name": "Samsung Galaxy S25 Ultra",
+    "Description": "Flagship smartphone with AI-driven camera and foldable screen.",
+    "Price": 1199.99,
+    "PictureUrl": "https://images-eu.ssl-images-amazon.com/images/I/61uvatjvVYL._AC_UL495_SR435,495_.jpg",
+    "CategoryId": 1,
+    "BrandId": 2
+  },
+  {
+    "Name": "Samsung Galaxy Watch 6",
+    "Description": "Smartwatch with health tracking and seamless ecosystem integration.",
+    "Price": 349.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61d3qY2J1AL._UF894,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 2
+  },
+  {
+    "Name": "Logitech MX Master 3S Mouse",
+    "Description": "Iconic mouse with Quiet Clicks and 8,000 DPI sensor.",
+    "Price": 99.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61ni3t1ryQL._UF894,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 3
+  },
+  {
+    "Name": "Logitech G Pro X Gaming Headset",
+    "Description": "Professional-grade gaming headset with Blue VO!CE mic technology.",
+    "Price": 129.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/515NOtUcMlL._UF894,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 3
+  },
+  {
+    "Name": "Logitech C920 HD Pro Webcam",
+    "Description": "Full HD webcam with autofocus and stereo audio.",
+    "Price": 79.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61hkpehFWvL._UF894,1000_QL80_.jpg",
+    "CategoryId": 1,
+    "BrandId": 3
+  },
+
+  {
+    "Name": "KitchenAid Artisan Series 5-Quart Stand Mixer",
+    "Description": "Tilt-head stand mixer available in over 20 colors.",
+    "Price": 449.95,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71SbtQM6z-L.jpg",
+    "CategoryId": 2,
+    "BrandId": 4
+  },
+  {
+    "Name": "KitchenAid Food Processor Attachment",
+    "Description": "Attachment for your KitchenAid mixer to chop, slice, and shred.",
+    "Price": 199.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61rJYfXWpKL.jpg",
+    "CategoryId": 2,
+    "BrandId": 4
+  },
+  {
+    "Name": "KitchenAid Kettle",
+    "Description": "Electric kettle with temperature control and sleek design.",
+    "Price": 129.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61tL9iFaLOL._UF894,1000_QL80_.jpg",
+    "CategoryId": 2,
+    "BrandId": 4
+  },
+  {
+    "Name": "Ninja AF101 Air Fryer",
+    "Description": "Air fry with up to 75% less fat than traditional frying.",
+    "Price": 89.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71+8uTMDRFL.jpg",
+    "CategoryId": 2,
+    "BrandId": 5
+  },
+  {
+    "Name": "Ninja Foodi Blender",
+    "Description": "Powerful blender with multiple speed settings and easy cleaning.",
+    "Price": 149.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71Ds+fpTvdL.jpg",
+    "CategoryId": 2,
+    "BrandId": 5
+  },
+  {
+    "Name": "Ninja Coffee Maker",
+    "Description": "12-cup programmable coffee maker with built-in frother.",
+    "Price": 129.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81-vMuZ92ZL.jpg",
+    "CategoryId": 2,
+    "BrandId": 5
+  },
+  {
+    "Name": "YETI Rambler 30 oz. Tumbler",
+    "Description": "Double-wall vacuum insulated stainless steel tumbler.",
+    "Price": 38.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/616Qo6c6-4L._UF1000,1000_QL80_.jpg",
+    "CategoryId": 2,
+    "BrandId": 11
+  },
+  {
+    "Name": "YETI Hopper Flip Portable Cooler",
+    "Description": "Durable soft cooler with cold-holding insulation.",
+    "Price": 299.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61VhNoL0ihL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 2,
+    "BrandId": 11
+  },
+  {
+    "Name": "YETI LoadOut GoBox",
+    "Description": "Heavy-duty waterproof storage box for outdoor adventures.",
+    "Price": 199.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51b+Z1Y2unL._UY1000_.jpg",
+    "CategoryId": 2,
+    "BrandId": 11
+  },
+
+  {
+    "Name": "Levi's 501 Original Fit Jeans",
+    "Description": "Original straight fit blue jeans since 1873.",
+    "Price": 79.5,
+    "PictureUrl": "https://m.media-amazon.com/images/I/31iQARzg65L._SY350_.jpg",
+    "CategoryId": 3,
+    "BrandId": 6
+  },
+  {
+    "Name": "Levi's Trucker Jacket",
+    "Description": "Classic denim jacket with button-front closure.",
+    "Price": 89.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/A1Gicq0InGL._AC_UY1000_.jpg",
+    "CategoryId": 3,
+    "BrandId": 6
+  },
+  {
+    "Name": "Levi's Graphic T-Shirt",
+    "Description": "Soft cotton t-shirt with vintage Levi's logo.",
+    "Price": 29.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51K9KoPWfML._AC_SX425_.jpg",
+    "CategoryId": 3,
+    "BrandId": 6
+  },
+  {
+    "Name": "Nike Air Max 270",
+    "Description": "Lifestyle Air Max with resilient foam and large window.",
+    "Price": 160.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61Puxn5lpCL._AC_SL1500_.jpg",
+    "CategoryId": 3,
+    "BrandId": 7
+  },
+  {
+    "Name": "Nike Dri-FIT Running Shorts",
+    "Description": "Lightweight and breathable shorts for running.",
+    "Price": 35.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/719Nn4ii6LL.jpg",
+    "CategoryId": 3,
+    "BrandId": 7
+  },
+  {
+    "Name": "Nike Sportswear Hoodie",
+    "Description": "Comfortable hoodie with Nike logo and soft fabric.",
+    "Price": 55.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81wavL5y3kL._UY1000_.jpg",
+    "CategoryId": 3,
+    "BrandId": 7
+  },
+  {
+    "Name": "The North Face Borealis Backpack",
+    "Description": "Backpack with FlexVent suspension system for comfort.",
+    "Price": 99.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51Gblm6leXL._UY1000_.jpg",
+    "CategoryId": 3,
+    "BrandId": 8
+  },
+  {
+    "Name": "The North Face Thermoball Jacket",
+    "Description": "Lightweight insulated jacket for cold weather.",
+    "Price": 199.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71nvE+lpv+L._AC_UY1000_.jpg",
+    "CategoryId": 3,
+    "BrandId": 8
+  },
+  {
+    "Name": "The North Face Base Camp Duffel",
+    "Description": "Durable duffel bag for travel and outdoor use.",
+    "Price": 149.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51A614MXZkL._UY1000_.jpg",
+    "CategoryId": 3,
+    "BrandId": 8
+  },
+
+  {
+    "Name": "Dune by Frank Herbert",
+    "Description": "Epic science fiction blending adventure and mysticism.",
+    "Price": 10.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71oO1E-XPuL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 4,
+    "BrandId": 9
+  },
+  {
+    "Name": "Atomic Habits by James Clear",
+    "Description": "Proven framework for building good habits and breaking bad ones.",
+    "Price": 13.79,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81ANaVZk5LL.jpg",
+    "CategoryId": 4,
+    "BrandId": 9
+  },
+  {
+    "Name": "The Lord of the Rings by J.R.R. Tolkien",
+    "Description": "Timeless fantasy classic about the One Ring.",
+    "Price": 21.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/7125+5E40JL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 4,
+    "BrandId": 9
+  },
+  {
+    "Name": "The Alchemist by Paulo Coelho",
+    "Description": "Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. Inspirational novel about following your dreams. ",
+    "Price": 16.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71+2-t7M35L.jpg",
+    "CategoryId": 4,
+    "BrandId": 9
+  },
+  {
+    "Name": "Educated by Tara Westover",
+    "Description": "Memoir about a woman who leaves her survivalist family to pursue education.",
+    "Price": 14.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71-4MkLN5jL.jpg",
+    "CategoryId": 4,
+    "BrandId": 9
+  },
+
+  {
+    "Name": "Spalding NBA Street Basketball",
+    "Description": "Durable rubber cover for outdoor courts with deep channels for grip.",
+    "Price": 24.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/91oViE8838L.jpg",
+    "CategoryId": 5,
+    "BrandId": 10
+  },
+  {
+    "Name": "Wilson Evolution Indoor Game Basketball",
+    "Description": "Preferred basketball with Evo Microfiber composite cover.",
+    "Price": 69.95,
+    "PictureUrl": "https://m.media-amazon.com/images/I/91M76Va0YSL.jpg",
+    "CategoryId": 5,
+    "BrandId": 10
+  },
+  {
+    "Name": "Coleman Sundome 4-Person Tent",
+    "Description": "Easy-to-set-up tent with WeatherTec system for protection.",
+    "Price": 89.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71QW1QdpvkL.jpg",
+    "CategoryId": 5,
+    "BrandId": 20
+  },
+  {
+    "Name": "Garmin Forerunner 55 GPS Running Watch",
+    "Description": "Track runs and monitor health with wrist heart rate and suggested workouts.",
+    "Price": 199.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/518z0My1ZlS.jpg",
+    "CategoryId": 5,
+    "BrandId": 13
+  },
+  {
+    "Name": "Peloton Bike+",
+    "Description": "High-tech stationary bike with immersive classes and performance tracking.",
+    "Price": 2495.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81wkKk0W-aL._UF350,350_QL80_.jpg",
+    "CategoryId": 5,
+    "BrandId": 15
+  },
+  {
+    "Name": "Peloton Tread",
+    "Description": "Smart treadmill with live and on-demand classes and metrics.",
+    "Price": 4295.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51wldgKrkxL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 5,
+    "BrandId": 15
+  },
+
+  {
+    "Name": "Fitbit Charge 5 Fitness Tracker",
+    "Description": "Advanced fitness tracker with GPS, heart rate, and sleep tracking.",
+    "Price": 179.95,
+    "PictureUrl": "https://m.media-amazon.com/images/I/51YjNQZ0RDL.jpg",
+    "CategoryId": 6,
+    "BrandId": 13
+  },
+  {
+    "Name": "Fitbit Versa 4 Smartwatch",
+    "Description": "Health smartwatch with daily readiness score and built-in GPS.",
+    "Price": 229.95,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61OEuoqFqYL.jpg",
+    "CategoryId": 6,
+    "BrandId": 13
+  },
+  {
+    "Name": "Fitbit Inspire 3",
+    "Description": "Slim fitness tracker with heart rate and sleep monitoring.",
+    "Price": 99.95,
+    "PictureUrl": "https://m.media-amazon.com/images/I/417lU7uNHnL.jpg",
+    "CategoryId": 6,
+    "BrandId": 13
+  },
+
+  {
+    "Name": "Burt's Bees Natural Lip Balm",
+    "Description": "100% natural lip balm made with beeswax and vitamin E.",
+    "Price": 3.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81aOihwffWL._UF894,1000_QL80_.jpg",
+    "CategoryId": 7,
+    "BrandId": 16
+  },
+  {
+    "Name": "Burt's Bees Facial Cleansing Towelettes",
+    "Description": "Gentle cleansing wipes with natural ingredients.",
+    "Price": 8.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71Q+4Xt6TZL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 7,
+    "BrandId": 16
+  },
+  {
+    "Name": "Burt's Bees Renewal Firming Serum",
+    "Description": "Natural serum to improve skin elasticity and firmness.",
+    "Price": 29.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81UssgU3HkL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 7,
+    "BrandId": 16
+  },
+
+  {
+    "Name": "Blue Buffalo Life Protection Formula Dog Food",
+    "Description": "Natural dog food with real chicken and wholesome grains.",
+    "Price": 49.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71jQsmvE0pL.jpg",
+    "CategoryId": 8,
+    "BrandId": 17
+  },
+  {
+    "Name": "Blue Buffalo Wilderness Grain-Free Cat Food",
+    "Description": "High-protein grain-free cat food with real meat.",
+    "Price": 39.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71vlvCGmxBL._UF894,1000_QL80_.jpg",
+    "CategoryId": 8,
+    "BrandId": 17
+  },
+  {
+    "Name": "Blue Buffalo Ultra Plush Pet Bed",
+    "Description": "Comfortable and durable bed for dogs and cats.",
+    "Price": 59.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81mv7YJHuPL._UF1000,1000_QL80_.jpg",
+    "CategoryId": 8,
+    "BrandId": 17
+  },
+
+  {
+    "Name": "Herman Miller Aeron Ergonomic Office Chair",
+    "Description": "Iconic ergonomic chair designed for comfort and support.",
+    "Price": 1399.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/71VVk7m8aIL.jpg",
+    "CategoryId": 9,
+    "BrandId": 18
+  },
+  {
+    "Name": "Herman Miller Embody Chair",
+    "Description": "Ergonomic chair designed to promote healthy posture.",
+    "Price": 1595.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/61vsHNwGGWL.jpg",
+    "CategoryId": 9,
+    "BrandId": 18
+  },
+  {
+    "Name": "Herman Miller Eames Molded Plastic Chair",
+    "Description": "Classic mid-century modern office chair with molded plastic seat.",
+    "Price": 499.0,
+    "PictureUrl": "https://m.media-amazon.com/images/I/3186G3mLP9L._AC_UF894,1000_QL80_.jpg",
+    "CategoryId": 9,
+    "BrandId": 18
+  },
+
+  {
+    "Name": "Crayola 64-Count Crayons",
+    "Description": "Classic crayons in 64 vibrant colors for creative fun.",
+    "Price": 6.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/717gPBkdUkL.jpg",
+    "CategoryId": 10,
+    "BrandId": 19
+  },
+  {
+    "Name": "Crayola Washable Markers",
+    "Description": "Bright, washable markers for kids and artists.",
+    "Price": 7.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/81PsWmvLA5L._UF1000,1000_QL80_.jpg",
+    "CategoryId": 10,
+    "BrandId": 19
+  },
+  {
+    "Name": "Crayola Colored Pencils Set",
+    "Description": "Set of 24 colored pencils for detailed coloring.",
+    "Price": 9.99,
+    "PictureUrl": "https://m.media-amazon.com/images/I/613cEBk5fiL.jpg",
+    "CategoryId": 10,
+    "BrandId": 19
+  }
+]

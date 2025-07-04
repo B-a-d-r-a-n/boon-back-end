@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-const categorySchema = new mongoose.Schema({
+const brandSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true, trim: true },
   image: { type: String, required: false },
 });
-const Category = mongoose.model("Category", categorySchema, "categories");
-export default Category;
+const Brand = mongoose.model("Brand", brandSchema);
+export default Brand;

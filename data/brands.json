@@ -1,0 +1,82 @@
+[
+  {
+    "image": "https://m.media-amazon.com/images/S/al-eu-726f4d26-7fdb/87e9c6dc-0077-47d3-8f18-6a62e10b8241._CR0%2C0%2C1500%2C300_SX1500_.jpg",
+    "Name": "Sony"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/al-eu-726f4d26-7fdb/c3031259-1306-4b97-ac48-ca6c9c5abd10._CR0%2C0%2C3000%2C600_SX1500_.jpg",
+    "Name": "Samsung"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/al-na-9d5791cf-3faf/98b1324b-f521-44d7-84b8-c0a874c1e106._CR0%2C0%2C3000%2C600_SX1500_.jpg",
+    "Name": "Logitech"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/abs-image-upload-na/6/AmazonStores/ATVPDKIKX0DER/70dbd0a5d028f8d5360178056c7c45a8.w3000.h600._CR0%2C0%2C3000%2C600_SX1500_.jpg",
+    "Name": "KitchenAid"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/al-na-9d5791cf-3faf/2f8b6b9d-9acc-401e-9834-a8f837a09a38._CR0%2C0%2C3000%2C600_SX1500_.jpg",
+    "Name": "Ninja"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/al-na-9d5791cf-3faf/3f56c873-6721-4c67-ac58-f1ec56c0d627._CR0%2C0%2C1500%2C300_SX1500_.jpg",
+    "Name": "Levi's"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/51Iy5h5rqgL.jpg",
+    "Name": "Nike"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/41WJMxwAQcL._UF894,1000_QL80_.jpg",
+    "Name": "The North Face"
+  },
+  {
+    "image": "https://the-digital-reader.com/wp-content/uploads/2014/09/Penguin-Random-image-1.jpeg",
+    "Name": "Penguin Random House"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/5141bCJqWAL.jpg_BO30,255,255,255_UF900,850_SR1910,1000,0,C_PIRIOFOURANDHALF-medium,BottomLeft,30,-20_ZA911,500,900,420,420,AmazonEmber,50,4,0,0_QL100_.jpg",
+    "Name": "Spalding"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/21T-kmpFDHL._BO30,255,255,255_UF900,850_SR1910,1000,0,C_ZA12,500,900,420,420,AmazonEmber,50,4,0,0_PIRIOFOURANDHALF-medium,BottomLeft,30,-20_QL100_.jpg",
+    "Name": "YETI"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/41HwoualJDL.jpg",
+    "Name": "Apple"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/abs-image-upload-na/5/AmazonStores/A1F83G8C2ARO7P/f8e420ed3e78a819c2b441a08958cee7.w296.h296.png",
+    "Name": "Fitbit"
+  },
+  {
+    "image": "https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F0e5c027c-024a-4109-95fb-17846bd49682_3840x2160.png",
+    "Name": "Lululemon"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/51d13CmKk7L.png",
+    "Name": "Peloton"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/stores-image-uploads-eu-prod/6/AmazonStores/A1F83G8C2ARO7P/f4c0c7b7ae98e7ba3821195cda414749.w1800.h1200.gif",
+    "Name": "Burt's Bees"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/abs-image-upload-na/9/AmazonStores/ATVPDKIKX0DER/0761542b4534529968de2577e12f5377.w400.h400.jpg",
+    "Name": "Blue Buffalo"
+  },
+  {
+    "image": "https://shopatmarketstreet.com/wp-content/uploads/2021/05/HermanMiller-Logo.png",
+    "Name": "Herman Miller"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/61DZkcrqokL._UF350,350_QL80_.jpg",
+    "Name": "Crayola"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/S/stores-image-uploads-na-prod/c/AmazonStores/ATVPDKIKX0DER/cf4af2dc0e5491e36adf66c0f95ac644.w1966.h643.jpg",
+    "Name": "Coleman"
+  }
+]
