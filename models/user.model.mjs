@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 import bcrypt, { genSalt } from "bcryptjs";
+const addressSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, trim: true },
+    address: { type: String, trim: true },
+    city: { type: String, trim: true },
+    postalCode: { type: String, trim: true },
+    country: { type: String, trim: true },
+  },
+  { _id: false }
+); 
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -14,66 +24,53 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["reader", "author", "admin"],
-      default: "reader",
+      enum: ["customer", "seller", "admin"],
+      default: "customer",
     },
-    authorStatus: {
-      type: String,
-      enum: ["none", "pending", "approved", "rejected"],
-      default: "none",
-    },
-    authorApplicationMessage: {
-      type: String,
-      trim: true,
-    },
+    orderHistory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
+    cart: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          default: 1,
+        },
+      },
+    ],
+    shippingAddress: addressSchema,
     avatarUrl: { type: String, required: false },
+    provider: {
+      type: String,
+      required: true,
+      enum: ["credentials", "google", "facebook"],
+      default: "credentials",
+    },
     password: {
       type: String,
-      required: [true, "Please provide a password"],
       minlength: 8,
       select: false,
     },
     passwordConfirm: {
       type: String,
-      validate: {
-        validator: function (el) {
-          return el === this.password;
-        },
-        message: "Passwords are not the same!",
-      },
     },
-
-    totalStars: {
-      type: Number,
-      default: 0,
-    },
-
     passwordChangedAt: Date,
     refreshToken: String,
-    paymentMethods: {
-      type: String,
-      optional: true,
-    },
-    paymentIntent: {
-      type: String,
-      optional: true,
-    },
-    starredArticles: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Article",
-      },
-    ],
-    userComments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
-    address: {
-      type: String,
-      optional: true,
-    },
   },
   { timestamps: true }
 );

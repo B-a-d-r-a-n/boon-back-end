@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "https://bloggy-beta-seven.vercel.app/sitemap.xml"
+      "destination": "https:
     },
     {
       "source": "/robots.txt",

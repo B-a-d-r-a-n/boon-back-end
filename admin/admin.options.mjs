@@ -1,28 +1,19 @@
 import AdminJS from "adminjs";
 import * as AdminJSMongoose from "@adminjs/mongoose";
-import User from "../models/user.model.mjs"; // Add this missing import
+import User from "../models/user.model.mjs"; 
 import Comment from "../models/comment.model.mjs";
 import Article from "../models/article.model.mjs";
 import Category from "../models/category.model.mjs";
 import Tag from "../models/tag.model.mjs";
-
-// Tell AdminJS to use the Mongoose adapter
 AdminJS.registerAdapter({
   Database: AdminJSMongoose.Database,
   Resource: AdminJSMongoose.Resource,
 });
-
-/**
- * @type {import('adminjs').AdminJSOptions}
- */
 const adminOptions = {
-  // We will define our database resources here
   resources: [
-    // Each model gets its own configuration object
     {
       resource: User,
       options: {
-        // Customize how the User resource is displayed
         listProperties: [
           "name",
           "email",
@@ -31,7 +22,7 @@ const adminOptions = {
           "totalStars",
           "createdAt",
         ],
-        editProperties: ["name", "email", "role", "authorStatus"], // Fields admins can edit
+        editProperties: ["name", "email", "role", "authorStatus"], 
         showProperties: [
           "_id",
           "name",
@@ -44,13 +35,12 @@ const adminOptions = {
           "updatedAt",
           "authorApplicationMessage",
         ],
-        // Custom action to approve an author
         actions: {
           approveAuthor: {
             actionType: "record",
             icon: "Checkmark",
             guard: "Are you sure you want to approve this user as an author?",
-            component: false, // No custom component needed
+            component: false, 
             handler: async (request, response, context) => {
               const { record, currentAdmin } = context;
               await record.update({ authorStatus: "approved", role: "author" });
@@ -64,7 +54,6 @@ const adminOptions = {
                 },
               };
             },
-            // Only show this button for users with 'pending' status
             isVisible: (context) =>
               context.record.param("authorStatus") === "pending",
           },
@@ -76,23 +65,18 @@ const adminOptions = {
     { resource: Category },
     { resource: Tag },
   ],
-  // You can customize the branding
   branding: {
     companyName: "Bloggy Admin",
-    softwareBrothers: false, // Removes the "Made by Software Brothers" text
+    softwareBrothers: false, 
   },
-  // Set the default language
   locale: {
     translations: {
       labels: {
-        // You can rename models here for a friendlier display
         User: "Users & Authors",
         Article: "Blog Posts",
       },
     },
   },
-  // The path to your admin panel
   rootPath: "/admin",
 };
-
 export default adminOptions;

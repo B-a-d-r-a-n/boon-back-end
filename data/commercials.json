@@ -1,0 +1,27 @@
+[
+  {
+    "image": "https://m.media-amazon.com/images/I/61BARAaP3zL._SX3000_.jpg",
+    "Name": "Electronics"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/61DZSlMBUEL._SX3000_.jpg",
+    "Name": "Home & Kitchen"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/61Hli1jABKL._SX3000_.jpg",
+    "Name": "Home & Kitchen"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/61SZFIlHkTL._SX3000_.jpg",
+    "Name": "Clothing & Apparel"
+  },
+
+  {
+    "image": "https://m.media-amazon.com/images/I/61JJhixcqkL._SX3000_.jpg",
+    "Name": "Health & Personal Care"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/61q-at3SObL._SX3000_.jpg",
+    "Name": "Beauty & Skincare"
+  }
+]
