@@ -1,111 +1,144 @@
-# Bloggy API
 
-Welcome to the backend API for Bloggy, a modern and feature-rich blogging platform. This server is built with Node.js and Express, providing a robust, secure, and scalable RESTful API to support the [Bloggy Frontend](https://github.com/B-a-d-r-a-n/Bloggy).
+# Boon-Commerce API
 
-The API handles everything from user authentication and profile management to full CRUD operations for articles, nested comments, and more.
-
-
----
+Boon-Commerce is a robust and feature-rich RESTful API for an e-commerce platform. Built with Node.js, Express, and MongoDB, it provides a complete backend solution for managing products, users, orders, authentication, and more. It's designed to be scalable, secure, and easy to integrate with any front-end application.
 
 ## ✨ Features
 
--   **RESTful API Design:** Logical, resource-oriented endpoints for clean and predictable interactions.
--   **Secure JWT Authentication:** A complete authentication system using short-lived access tokens and long-lived, `httpOnly` refresh tokens for secure session management.
--   **Full CRUD Operations:** Comprehensive endpoints for managing Users, Articles, Comments (with nested replies), Tags, and Categories.
--   **Advanced Querying:** The article list endpoint supports dynamic filtering by category and author, as well as full-text search across titles, summaries, and author names.
--   **Reputation System:** Endpoints for "starring" articles, which automatically updates total star counts for authors.
--   **Cloud Image Uploads:** Seamlessly handles file uploads by proxying them directly to **ImgBB** (or Cloudinary), storing only the public URL.
--   **Dynamic Sitemap Generation:** A dedicated `/sitemap.xml` endpoint to improve SEO for the frontend application.
--   **Security & Performance:** Equipped with `helmet` for security headers, `cors` for cross-origin management, and `express-rate-limit` to prevent abuse.
+*   **Full E-commerce Functionality**: Manage products, categories, brands, and promotional content.
+*   **Complete User Module**: User registration, profile management, and role-based access control.
+*   **Secure Authentication**: JWT-based authentication with support for both standard credentials and OAuth (Google, Facebook).
+*   **Role-Based Authorization**: Differentiated permissions for customers, sellers, and administrators.
+*   **Advanced Product Filtering & Search**:
+    *   Full-text search across product names and descriptions.
+    *   Dynamic filtering by category, brand, and price range.
+    *   Sorting by various attributes (e.g., creation date, price).
+    *   Pagination for handling large datasets efficiently.
+*   **User Shopping Features**:
+    *   Persistent Shopping Cart management.
+    *   Personal Wishlist functionality.
+*   **Order Processing**: A complete workflow for creating and managing customer orders, which automatically updates product stock.
+*   **Product Reviews**: Authenticated users can leave ratings and comments on products.
+*   **Image Handling**: Utilizes Multer for handling file uploads and integrates with the ImgBB API for external image hosting.
+*   **Database Seeding**: A convenient script to populate the database with initial sample data for products, categories, and more.
+*   **Security & Performance**:
+    *   `helmet` for securing HTTP headers.
+    *   `express-rate-limit` to prevent brute-force attacks.
+    *   `cors` for controlled cross-origin access.
+
+## 🛠️ Tech Stack
+
+*   **Backend**: Node.js, Express.js
+*   **Database**: MongoDB with Mongoose ODM
+*   **Authentication**: JSON Web Tokens (jsonwebtoken), bcrypt.js
+*   **File Uploads**: Multer, ImgBB API (via Axios)
+*   **Middleware**: CORS, Helmet, Morgan, Express Rate Limit
+*   **Environment**: dotenv
 
 ---
 
-## 🚀 Tech Stack
+## 🚀 Getting Started
 
--   **Runtime:** [Node.js](https://nodejs.org/) with ES Modules (`.mjs`)
--   **Framework:** [Express.js](https://expressjs.com/)
--   **Database:** [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/) for elegant object data modeling.
--   **Authentication:** [JSON Web Token (jsonwebtoken)](https://github.com/auth0/node-jsonwebtoken) & [cookie-parser](https://github.com/expressjs/cookie-parser)
--   **Image Uploads:** [Multer](https://github.com/expressjs/multer) for processing multipart/form-data and [Axios](https://axios-http.com/) for proxying to ImgBB.
--   **Validation:** [express-validator](https://express-validator.github.io/docs/) for robust request validation.
--   **API Documentation:** [Swagger UI](https://swagger.io/tools/swagger-ui/) via `swagger-ui-express` and `swagger-jsdoc`.
--   **Deployment:** Hosted as a Serverless Function on [Vercel](https://vercel.com/).
-
----
-
-## 🛠️ Getting Started
-
-Follow these instructions to get the API server running on your local machine for development and testing.
+Follow these instructions to get a local copy of the project up and running for development and testing.
 
 ### Prerequisites
 
--   Node.js (v18 or later recommended)
--   MongoDB (A local instance or a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cluster is required)
--   npm or yarn
+*   Node.js (v18 or higher recommended)
+*   npm
+*   MongoDB (either a local instance or a cloud-based one like MongoDB Atlas)
 
-### Installation
+### 1. Installation
 
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/your-username/bloggy-api.git
-    cd bloggy-api
-    ```
+Clone the repository to your local machine:
+```bash
+git clone <your-repository-url>
+cd <repository-folder>
+```
 
-2.  **Install NPM packages:**
-    ```sh
-    npm install
-    ```
+Install the required npm packages:
+```bash
+npm install
+```
 
-3.  **Set up environment variables:**
-    Create a `.env` file in the root of the project and populate it with the following values. You can generate long, random strings for the JWT secrets.
+### 2. Environment Configuration
 
-    ```env
-    # Server Configuration
-    PORT=3000
-    NODE_ENV=development
+Create a `.env` file in the root of the project. This file will store your environment variables. Copy the contents of the example below and replace the placeholder values with your actual credentials.
 
-    # Database Connection String
-    MONGODB_URI=your_mongodb_atlas_or_local_connection_string
+**.env.example**
+```env
+# Server Configuration
+NODE_ENV="Development"
+PORT=3500
+FrontEnd_url=http://localhost:5173
 
-    # JWT Secrets
-    JWT_SECRET=your_super_long_random_jwt_secret
-    JWT_EXPIRES_IN=15m
-    JWT_REFRESH_SECRET=your_other_super_long_random_refresh_secret
-    JWT_REFRESH_EXPIRES_IN=7d
-    JWT_COOKIE_EXPIRES_IN=7
+# Database
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster-url>/<database-name>?retryWrites=true&w=majority
 
-    # ImgBB API Key
-    IMGBB_API_KEY=your_imgbb_api_key
-    ```
+# JWT Secrets & Expiration
+JWT_SECRET=<your-very-long-and-secure-jwt-secret>
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_SECRET=<your-very-long-and-secure-jwt-refresh-secret>
+JWT_REFRESH_EXPIRES_IN=7d
+JWT_COOKIE_EXPIRES_IN=7
 
-### Running the Server
+# External API Keys
+IMGBB_API_KEY=<your-imgbb-api-key>
+```
 
--   **For development (with automatic restarts):**
-    ```sh
-    npm run dev
-    ```
+### 3. Database Seeding
 
--   **For production:**
-    ```sh
-    npm start
-    ```
+The project includes a seeder script to populate your database with initial data from the `/data` directory.
 
--   **To populate the database with fake data:**
-    ```sh
-    npm run seed
-    ```
+**Important**: The seeder requires at least one 'admin' user to exist in the database to assign products to. You may need to register an admin user manually first before seeding products.
 
-The API server will be available at `http://localhost:3000`.
+To import all data (this will delete existing data in the collections):
+```bash
+npm run seed -- --import
+```
+To delete all data from the relevant collections:
+```bash
+npm run seed -- --delete
+```
+
+### 4. Running the Application
+
+To start the server in development mode with live-reloading (using nodemon):
+```bash
+npm run dev
+```
+To start the server in production mode:
+```bash
+npm start
+```The API will be available at `http://localhost:3500` (or the port you specified).
 
 ---
 
-## 📚 API Documentation
+##  API Endpoints
 
-Once the server is running in development mode, you can access the complete, interactive API documentation at:
+The API routes are versioned under `/api/v1`.
 
-**[http://localhost:3000/api-docs](http://localhost:3000/api-docs)**
-
-This Swagger UI page allows you to explore all available endpoints, see their required parameters and response schemas, and even execute live API calls directly from your browser.
-
-**Live API Docs:** [https://your-api-name.vercel.app/api-docs](https://your-api-name.vercel.app/api-docs)
----
+| Route                    | Method | Description                                       | Authentication |
+| ------------------------ | ------ | ------------------------------------------------- | -------------- |
+| `/auth/register`         | `POST` | Register a new user.                              | Public         |
+| `/auth/login`            | `POST` | Log in with email and password.                   | Public         |
+| `/auth/oauth`            | `POST` | Log in or register via OAuth (Google/Facebook).   | Public         |
+| `/auth/me`               | `GET`  | Get the current authenticated user's profile.     | Authenticated  |
+| `/users/me`              | `PATCH`| Update the current user's profile information.    | Authenticated  |
+| `/users/me/avatar`       | `PATCH`| Update the current user's profile picture.        | Authenticated  |
+| `/users/wishlist`        | `GET`  | Get the user's wishlist.                          | Authenticated  |
+| `/users/wishlist`        | `POST` | Add/remove a product from the wishlist.           | Authenticated  |
+| `/users/cart`            | `GET`  | Get the user's shopping cart.                     | Authenticated  |
+| `/users/cart`            | `POST` | Add an item to the cart.                          | Authenticated  |
+| `/users/cart`            | `DELETE`| Clear the entire shopping cart.                   | Authenticated  |
+| `/products`              | `GET`  | Get all products with filtering, sorting, etc.    | Public         |
+| `/products`              | `POST` | Add a new product.                                | Admin          |
+| `/products/:slug`        | `GET`  | Get a single product by its slug.                 | Public         |
+| `/products/:id`          | `PATCH`| Update an existing product.                       | Admin          |
+| `/products/:id/reviews`  | `POST` | Add a review to a product.                        | Authenticated  |
+| `/orders`                | `POST` | Create a new order from the user's cart.          | Authenticated  |
+| `/orders/myorders`       | `GET`  | Get all orders for the current user.              | Authenticated  |
+| `/orders/:id`            | `GET`  | Get a specific order by ID.                       | Authenticated  |
+| `/categories`            | `GET`  | Get all product categories.                       | Public         |
+| `/brands`                | `GET`  | Get all product brands.                           | Public         |
+| `/commercials`           | `GET`  | Get commercial/promotional banner data.           | Public         |
+| `/delivery-methods`      | `GET`  | Get available delivery methods and prices.        | Public         |
